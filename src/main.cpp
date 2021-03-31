@@ -1,13 +1,11 @@
 #include <QApplication>
 #include <QTranslator>
-#include <QTime>
-#include <QDir>
 #include <QStandardPaths>
 #include <QLibraryInfo>
+#include <QDesktopWidget>
 #include <QDebug>
-#include <QPushButton>
 #include <QDirIterator>
-//#include "mainwindow.h"
+#include "mainwindow.h"
 
 
 int main(int argc, char *argv[]) {
@@ -24,21 +22,24 @@ int main(int argc, char *argv[]) {
     QDirIterator it(":/", QDirIterator::Subdirectories);
     while (it.hasNext()) {
         qDebug() << it.next();
+        qDebug() << QString("branch: %1, version: %2, built_at: %3").arg(GIT_BRANCH).arg(GIT_HASH).arg(BUILD_TIMESTAMP);
     }
 
     QTranslator myappTranslator;
     QString locale = QLocale::system().name();
 
-    bool ok=myappTranslator.load( QLatin1String("puzzle-astra_")+ locale, QLatin1String(":/i18n/"));
+    myappTranslator.load( QLatin1String("puzzle-astra_")+ locale, QLatin1String(":/i18n/"));
     app.installTranslator(&myappTranslator);
 
-    qDebug() << "load trans:" << ok;
+    MainWindow qWinMain;
+    qWinMain.setStyleSheet(" background-image: url(:/res/images/table.png); ");
+    const QRect availableGeometry = QApplication::desktop()->availableGeometry(&qWinMain);
+    qDebug() << "availableGeometry" << availableGeometry;
+    qWinMain.setMinimumSize(availableGeometry.width() / 2, (availableGeometry.height() * 2) / 3);
+    qWinMain.move((availableGeometry.width() - qWinMain.width()) / 2,
+                  (availableGeometry.height() - qWinMain.height()) / 2);
 
-    qDebug() << QString("branch: %1, version: %2, built_at: %3").arg(GIT_BRANCH).arg(GIT_HASH).arg(BUILD_TIMESTAMP);
-
-    QWidget widget;
-    widget.setWindowTitle(QObject::tr("Hello World!"));
-    widget.show();
+    qWinMain.show();
 
     return app.exec();
 }
