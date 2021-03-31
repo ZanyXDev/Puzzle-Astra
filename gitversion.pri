@@ -1,19 +1,4 @@
-GIT_VERSION = $$system(git --git-dir $$PWD/.git --work-tree $$PWD describe --always --tags)
-
-DEFINES += GIT_VERSION=\\"$$GIT_VERSION\\"
-
-#Once that is done, GIT_VERSION becomes usable just like any macro inside your code:
-#QString version(GIT_VERSION);
-
-#Adding Windows Executable Version
-VERSION = $$GIT_VERSION
-win32 {
-    VERSION ~= s/-\d+-g[a-f0-9]{6,}//
-}
-
-#Adding Mac OS X App Version
-macx {
-    INFO_PLIST_PATH = $$shell_quote($${OUT_PWD}/$${TARGET}.app/Contents/Info.plist)
-    QMAKE_POST_LINK += /usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $${VERSION}\" $${INFO_PLIST_PATH}
-}
-
+GIT_HASH="\\\"$$system(git -C \""$$_PRO_FILE_PWD_"\" rev-parse --short HEAD)\\\""
+GIT_BRANCH="\\\"$$system(git -C \""$$_PRO_FILE_PWD_"\" rev-parse --abbrev-ref HEAD)\\\""
+BUILD_TIMESTAMP="\\\"$$system(date -u +\""%Y-%m-%dT%H:%M:%SUTC\"")\\\""
+DEFINES += GIT_HASH=$$GIT_HASH GIT_BRANCH=$$GIT_BRANCH BUILD_TIMESTAMP=$$BUILD_TIMESTAMP

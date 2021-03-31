@@ -34,6 +34,8 @@ int main(int argc, char *argv[]) {
 
     qDebug() << "load trans:" << ok;
 
+    qDebug() << QString("branch: %1, version: %2, built_at: %3").arg(GIT_BRANCH).arg(GIT_HASH).arg(BUILD_TIMESTAMP);
+
     QWidget widget;
     widget.setWindowTitle(QObject::tr("Hello World!"));
     widget.show();

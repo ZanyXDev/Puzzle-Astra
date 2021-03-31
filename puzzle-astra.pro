@@ -19,7 +19,7 @@ RESOURCES += \
 
 TRANSLATIONS += \
     i18n/puzzle-astra_ru_RU.ts
-
+include(gitversion.pri)
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
