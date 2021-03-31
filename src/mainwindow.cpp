@@ -120,6 +120,7 @@ void MainWindow::setupButtons()
 void MainWindow::newPuzzle()
 {
     qDebug() << "new puzzle";
+
 }
 
 void MainWindow::savePuzzleToFile()
@@ -145,9 +146,4 @@ void MainWindow::previewPuzzle()
 void MainWindow::aboutApp()
 {
     qDebug() << "about App";
-}
-
-void MainWindow::exitApp()
-{
-    qDebug() << "exit App";
 }
