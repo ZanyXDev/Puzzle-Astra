@@ -3,5 +3,13 @@
         <file>res/images/buttons/exit.png</file>
         <file>i18n/puzzle-astra_ru_RU.qm</file>
         <file>res/images/table.png</file>
+        <file>res/images/puzzle.png</file>
+        <file>res/images/background.png</file>
+        <file>res/images/buttons/new.png</file>
+        <file>res/images/buttons/save.png</file>
+        <file>res/images/buttons/about.png</file>
+        <file>res/images/buttons/open.png</file>
+        <file>res/images/buttons/alignment.png</file>
+        <file>res/images/buttons/preview.png</file>
     </qresource>
 </RCC>
