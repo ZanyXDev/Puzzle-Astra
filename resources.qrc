@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/images/buttons/exit.png</file>
+ 	<file>i18n/puzzle-astra_ru_RU.qm</file>
+    </qresource>
+</RCC>
