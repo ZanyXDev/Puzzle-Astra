@@ -1,3 +1,5 @@
+!versionAtLeast(QT_VERSION, 5.10.0):error("Requires Qt version 5.10.0 or greater.")
+
 TEMPLATE +=app
 QT       += core gui
 
