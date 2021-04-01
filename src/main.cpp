@@ -18,12 +18,14 @@ int main(int argc, char *argv[]) {
         dirConfig.mkpath(dirConfig.path());
     }
 
+#ifdef QT_DEBUG
     // debug, print qrc resources
     QDirIterator it(":/", QDirIterator::Subdirectories);
     while (it.hasNext()) {
         qDebug() << it.next();
         qDebug() << QString("branch: %1, version: %2, built_at: %3").arg(GIT_BRANCH).arg(GIT_HASH).arg(BUILD_TIMESTAMP);
     }
+#endif
 
     QTranslator myappTranslator;
     QString locale = QLocale::system().name();
@@ -34,7 +36,7 @@ int main(int argc, char *argv[]) {
     MainWindow qWinMain;
     qWinMain.setStyleSheet(" background-image: url(:/res/images/table.png); ");
     const QRect availableGeometry = QApplication::desktop()->availableGeometry(&qWinMain);
-    qDebug() << "availableGeometry" << availableGeometry;
+
     qWinMain.setMinimumSize(availableGeometry.width() / 2, (availableGeometry.height() * 2) / 3);
     qWinMain.move((availableGeometry.width() - qWinMain.width()) / 2,
                   (availableGeometry.height() - qWinMain.height()) / 2);
