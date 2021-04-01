@@ -120,9 +120,28 @@ void MainWindow::setupButtons()
 void MainWindow::newPuzzle()
 {
     qDebug() << "new puzzle";
+    //TODO load last open picture folder from config [QSettings]
+    lastPath= QString("");
+    QString filename = QFileDialog::getOpenFileName(
+                this,
+                tr("Open pictures"),
+                lastPath,
+                tr("Pictures (*.png *.xpm *.jpg *.jpeg *.tiff *.webp *.bmp)"));
+    if (filename.isEmpty())
+    {
+        return;
+    }
+    //TODO save last open picture folder to config [QSettings]
+    puzzleFilename = QFileInfo(filename).fileName();
+    puzzlePixmap = QPixmap(filename);
 
+    this->setWindowTitle(QString(tr("Puzzle [%1]")).arg(puzzleFilename));
+
+    createPuzzle();
+    newAlignment();
 }
 
+// ------------------- Public slots -----------------------------------------
 void MainWindow::savePuzzleToFile()
 {
     qDebug() << "save puzzle";
@@ -146,4 +165,127 @@ void MainWindow::previewPuzzle()
 void MainWindow::aboutApp()
 {
     qDebug() << "about App";
+}
+
+// ------------------- Private functions ------------------------------------
+
+/**
+ * @brief MainWindow::createPuzzle
+ * @note  Creating a puzzle from an puzzlePixmap
+ */
+void MainWindow::createPuzzle()
+{
+    int countX = puzzlePixmap.width()/puzzleWidth;
+    int countY = puzzlePixmap.height()/puzzleHeight;
+
+    QPixmap pixPreview = puzzlePixmap.copy(0,0,countX*puzzleWidth,countY*puzzleHeight);
+    //TODO setup Widget preview  picture as  preview->setPicture(pixPreview);
+
+    /**
+     * @brief qDeleteAll delete all list items and clear list
+     */
+    qDeleteAll(listItems.begin(), listItems.end());
+    listItems.clear();
+
+    QString typePuzzle;
+    int zOrder=0;
+    for (int x=0;x<countX;x++){
+        for (int y=0;y<countY;y++){
+            typePuzzle="1";     // default
+            if ( ( !isEven( x ) &&  isEven( y ) )  ||
+                 (  isEven( x ) && !isEven( y ) ) ) {
+                typePuzzle="2";
+            }
+
+            if (x==0){
+                if (y==0){
+                    typePuzzle="1-l-t";
+                }else{
+                    typePuzzle=( isEven( y ) ? "1-l" : "2-l" );
+                }
+            }
+
+            if ( (y==0) && (x!=0) ){
+                typePuzzle=( isEven( x ) ? "1-t" : "2-2" );
+            }
+
+            if (x==countX-1){
+                if (y==0){
+                    typePuzzle=( isEven( countX ) ? "2-r-t" : "1-r-t" );
+                }else{
+                    if ( (isEven( y ) && isEven( countX ) ) ||
+                         (!isEven( y ) && !isEven( countX )) ){
+                        typePuzzle="2-r";
+                    }else{
+                        typePuzzle="1-r";
+                    }
+                }
+            }
+            if (x==countX-1 && y==countY-1){
+                if ( (isEven( countX ) && isEven( countY )) ||
+                     (!isEven( countX ) && !isEven( countY )) ){
+                    typePuzzle="1-r-b";
+                }else{
+                    typePuzzle="2-r-b";
+                }
+            }
+
+            // create item puzzle
+            QLabel *puzzle = new QLabel(this);//(widgetTable);
+            puzzle->setGeometry(x*(puzzleWidth+20),10+y*(puzzleHeight+20),puzzleOrigWidth,puzzleOrigHeight);
+            puzzle->setScaledContents(true);
+            puzzle->setProperty("cell_x",x);
+            puzzle->setProperty("cell_y",y);
+            puzzle->setProperty("type_puzzle",typePuzzle);
+            puzzle->setProperty("zOrder",zOrder);
+            setPicturePuzzle(puzzle,"effect1");
+            puzzle->show();
+            listItems.push_back(std::move(puzzle));
+            zOrder++;
+
+        }
+    }
+
+}
+
+void MainWindow::newAlignment()
+{
+
+}
+
+bool MainWindow::isEven(int number)
+{
+    return !(number & 1);
+}
+
+
+// Setting the shape of the puzzle on the image
+void MainWindow::setPicturePuzzle(QLabel *item, const QString &effect)
+{
+    QImage pix_temp = puzzlePixmap.toImage();
+    QPixmap pix(pix_temp.width()+puzzleOrigWidth*2,
+                pix_temp.height()+puzzleOrigHeight*2);
+
+    QPainter painterPix(&pix);
+    painterPix.drawImage(puzzleBorderWidth,puzzleBorderHeight,pix_temp,0,0);
+    painterPix.end();
+
+    QString typePuzzle = item->property("type_puzzle").toString();
+    QPixmap puzzle_mask(QLatin1String(":res/images/pieces/piece%1.png").arg(typePuzzle));
+    QImage puzzle_top(QLatin1String(":res/images/pieces/piece%1_%2.png").arg(typePuzzle).arg(effect));
+
+    int cell_x = item->property("cell_x").toInt();
+    int cell_y = item->property("cell_y").toInt();
+
+    QPixmap temp = pix.copy(cell_x*puzzleWidth,cell_y*puzzleHeight,puzzleOrigWidth,puzzleOrigHeight);
+
+
+    //TODO check perfomance createMaskFromColor for QPixmap or QImage
+    temp.setMask(puzzle_mask.createMaskFromColor(Qt::black,Qt::MaskOutColor));
+
+    QPainter p(&temp);
+    p.drawImage(0,0,puzzle_top.copy(0,0,puzzleOrigWidth,puzzleOrigHeight),0,0);
+    p.end();
+    item->setPixmap(temp);
+
 }
