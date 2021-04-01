@@ -5,19 +5,26 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     this->setWindowTitle(tr("Astra Puzzle v0.1-%1").arg(GIT_HASH));
     this->setWindowIcon(QIcon(":/res/images/puzzle.png"));
 
+    centralWidget = new QWidget();
+    centralLayout = new QHBoxLayout();
+
+    centralWidget->setLayout(centralLayout);
+
+    widgetTable = new QLabel();
+    widgetTable->setFrameShape(QFrame::Box);
+
     // background form buttons
     //    backgroundButtons = new QLabel(this);
     //    backgroundButtons->setPixmap(QPixmap(":/res/images/background.png"));
     //    backgroundButtons->setScaledContents(true);
     //    backgroundButtons->installEventFilter(this);
+    btnLayout =new QVBoxLayout();
 
-    //    btnNewPuzzle = new QLabel(this);
-    //    btnNewPuzzle->setPixmap(QPixmap(":res/images/buttons/new.png"));
-    //    btnNewPuzzle->setToolTip(tr("Open file")+"  (Ctrl+O)");
-    //    btnNewPuzzle->setGeometry(0,32,80,80);
-    //    btnNewPuzzle->setScaledContents(true);
-    //    btnNewPuzzle->installEventFilter(this);
-    this->setupButtons();
+    setupButtons();
+
+    centralLayout->addWidget(widgetTable,9);
+    centralLayout->addLayout(btnLayout,1);
+    setCentralWidget(centralWidget);
 }
 
 // ------------------- Public slots -----------------------------------------
@@ -80,6 +87,7 @@ void MainWindow::aboutApp()
 {
     qDebug() << "about App";
 }
+
 
 // ------------------- Private functions ------------------------------------
 
@@ -200,15 +208,16 @@ void MainWindow::setPicturePuzzle(QLabel *item, const QString &effect)
 void MainWindow::setupButtons()
 {
     QPixmap pixmapNewBtn(":res/images/buttons/new.png");
-    pixmapNewBtn = pixmapNewBtn.scaled(96, 96, Qt::KeepAspectRatioByExpanding);
 
-    //QIcon ButtonIcon(pixmapNewBtn);
+    pixmapNewBtn = pixmapNewBtn.scaled(96, 96, Qt::KeepAspectRatioByExpanding);
+    QSize btnSize = pixmapNewBtn.size();
+
     btnNewPuzzle = new QPushButton(this);
     btnNewPuzzle->setShortcut(QKeySequence::New);
     btnNewPuzzle->setFlat(true);
     btnNewPuzzle->setIcon(QIcon(pixmapNewBtn));
-    btnNewPuzzle->setIconSize(pixmapNewBtn.size());
-    btnNewPuzzle->setGeometry(QRect(QPoint(4, 4), QSize(96, 96)));
+    btnNewPuzzle->setIconSize(btnSize);
+    btnNewPuzzle->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
     btnNewPuzzle->setToolTip(tr("New picture from file")+"  (Ctrl+N)");
 
     QPixmap pixmapSaveBtn(":res/images/buttons/save.png");
@@ -218,8 +227,8 @@ void MainWindow::setupButtons()
     btnSavePuzzle->setShortcut(QKeySequence::Save);
     btnSavePuzzle->setFlat(true);
     btnSavePuzzle->setIcon(QIcon(pixmapSaveBtn));
-    btnSavePuzzle->setIconSize(pixmapSaveBtn.size());
-    btnSavePuzzle->setGeometry(QRect(QPoint(4, 104), QSize(96, 96)));
+    btnSavePuzzle->setIconSize(btnSize);
+    btnSavePuzzle->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
     btnSavePuzzle->setToolTip(tr("Save puzzle to file")+"  (Ctrl+S)");
 
     QPixmap pixmapLoadBtn(":res/images/buttons/open.png");
@@ -229,8 +238,8 @@ void MainWindow::setupButtons()
     btnLoadPuzzle->setShortcut(Qt::CTRL+Qt::Key_L);
     btnLoadPuzzle->setFlat(true);
     btnLoadPuzzle->setIcon(QIcon(pixmapLoadBtn));
-    btnLoadPuzzle->setIconSize(pixmapLoadBtn.size());
-    btnLoadPuzzle->setGeometry(QRect(QPoint(4, 204), QSize(96, 96)));
+    btnLoadPuzzle->setIconSize(btnSize);
+    btnLoadPuzzle->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
     btnLoadPuzzle->setToolTip(tr("Load puzzle from file")+"  (Ctrl+L)");
 
     QPixmap pixmapAligBtn(":res/images/buttons/alignment.png");
@@ -240,8 +249,8 @@ void MainWindow::setupButtons()
     btnAlignment->setShortcut(Qt::CTRL+Qt::Key_A);
     btnAlignment->setFlat(true);
     btnAlignment->setIcon(QIcon(pixmapAligBtn));
-    btnAlignment->setIconSize(pixmapAligBtn.size());
-    btnAlignment->setGeometry(QRect(QPoint(4, 304), QSize(96, 96)));
+    btnAlignment->setIconSize(btnSize);
+    btnAlignment->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
     btnAlignment->setToolTip(tr("Alignment")+"  (Ctrl+A)");
 
     QPixmap pixmapPreviewBtn(":res/images/buttons/preview.png");
@@ -251,8 +260,8 @@ void MainWindow::setupButtons()
     btnPreview->setShortcut(QKeySequence::Print);
     btnPreview->setFlat(true);
     btnPreview->setIcon(QIcon(pixmapPreviewBtn));
-    btnPreview->setIconSize(pixmapPreviewBtn.size());
-    btnPreview->setGeometry(QRect(QPoint(4, 404), QSize(96, 96)));
+    btnPreview->setIconSize(btnSize);
+    btnPreview->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
     btnPreview->setToolTip(tr("Show/hide preview puzzle")+"  (Ctrl+P)");
 
     QPixmap pixmapAboutBtn(":res/images/buttons/about.png");
@@ -262,8 +271,8 @@ void MainWindow::setupButtons()
     btnAbout->setShortcut(Qt::CTRL+Qt::Key_I);
     btnAbout->setFlat(true);
     btnAbout->setIcon(QIcon(pixmapAboutBtn));
-    btnAbout->setIconSize(pixmapAboutBtn.size());
-    btnAbout->setGeometry(QRect(QPoint(4, 504), QSize(96, 96)));
+    btnAbout->setIconSize(btnSize);
+    btnAbout->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
     btnAbout->setToolTip(tr("About app")+"  (Ctrl+I)");
 
     QPixmap pixmapExitBtn(":res/images/buttons/exit.png");
@@ -273,8 +282,8 @@ void MainWindow::setupButtons()
     btnExit->setShortcut(QKeySequence::Quit);
     btnExit->setFlat(true);
     btnExit->setIcon(QIcon(pixmapExitBtn));
-    btnExit->setIconSize(pixmapExitBtn.size());
-    btnExit->setGeometry(QRect(QPoint(4, 604), QSize(96, 96)));
+    btnExit->setIconSize(btnSize);
+    btnExit->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
     btnExit->setToolTip(tr("Exit app")+"  (Ctrl+Q)");
 
     // Connect button signal to appropriate slot
@@ -292,4 +301,12 @@ void MainWindow::setupButtons()
             this, &MainWindow::aboutApp);
     connect(btnExit,       &QPushButton::released,
             QCoreApplication::instance(), &QCoreApplication::quit);
+    btnLayout->addWidget(btnNewPuzzle);
+    btnLayout->addWidget(btnSavePuzzle);
+    btnLayout->addWidget(btnLoadPuzzle);
+    btnLayout->addWidget(btnAlignment);
+    btnLayout->addWidget(btnPreview);
+    btnLayout->addWidget(btnAbout);
+    btnLayout->addWidget(btnExit);
+
 }

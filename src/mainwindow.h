@@ -9,11 +9,12 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QPainter>
-#include <QGraphicsScene>
-#include <QGraphicsTextItem>
-#include <QGraphicsPixmapItem>
 #include <QColor>
 #include <QBitmap>
+#include <QRandomGenerator>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QSizePolicy>
 
 
 class MainWindow : public QMainWindow
@@ -36,6 +37,7 @@ private:
     QVector<QLabel*> listItems;
 
     QLabel *backgroundButtons;
+    QLabel *widgetTable;
 
     QPushButton *btnNewPuzzle;
     QPushButton *btnSavePuzzle;
@@ -44,6 +46,10 @@ private:
     QPushButton *btnPreview;
     QPushButton *btnAbout;
     QPushButton *btnExit;
+
+    QWidget *centralWidget;
+    QHBoxLayout *centralLayout;
+    QVBoxLayout *btnLayout;
 
     QString lastPath;
     QString puzzleFilename;
@@ -61,7 +67,7 @@ private:
 
     void setupButtons();
     void createPuzzle();
-    void newAlignment();
+
     bool isEven(int number);
     void setPicturePuzzle(QLabel *item, const QString &effect);
 };
