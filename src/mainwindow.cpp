@@ -13,11 +13,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     widgetTable = new QLabel();
     widgetTable->setFrameShape(QFrame::Box);
 
-    // background form buttons
-    //    backgroundButtons = new QLabel(this);
-    //    backgroundButtons->setPixmap(QPixmap(":/res/images/background.png"));
-    //    backgroundButtons->setScaledContents(true);
-    //    backgroundButtons->installEventFilter(this);
     btnLayout =new QVBoxLayout();
 
     setupButtons();
@@ -65,15 +60,15 @@ void MainWindow::loadPuzzle()
 
 void MainWindow::alignmentPuzzle()
 {
-    quint32 x;
-    quint32 y;
+    int h = centralWidget->width()-puzzleWidth-100;
+    int w = centralWidget->height()-puzzleHeight-100;
     QRandomGenerator *gen = QRandomGenerator::system();
     for (auto *item:listItems){
-        x = gen->bounded(0,centralWidget->width()-puzzleWidth-100);
-        y = gen->bounded(0,centralWidget->height()-puzzleHeight-100);
+        quint32 x = gen->bounded(0,h);
+        quint32 y = gen->bounded(0,w);
         item->move(0-widgetTable->x()+x,0-widgetTable->y()+y);
 
-        setPicturePuzzle(item,"effect1");
+        //setPicturePuzzle(item,"effect1");
         item->show();
     }
 }
@@ -153,14 +148,15 @@ void MainWindow::createPuzzle()
             }
 
             // create item puzzle
-            QLabel *puzzle = new QLabel(this);//(widgetTable);
+            QLabel *puzzle = new QLabel(widgetTable);
             puzzle->setGeometry(x*(puzzleWidth+20),10+y*(puzzleHeight+20),puzzleOrigWidth,puzzleOrigHeight);
             puzzle->setScaledContents(true);
             puzzle->setProperty("cell_x",x);
             puzzle->setProperty("cell_y",y);
             puzzle->setProperty("type_puzzle",typePuzzle);
             puzzle->setProperty("zOrder",zOrder);
-            //setPicturePuzzle(puzzle,"effect1");
+            puzzle->setAttribute(Qt::WA_TranslucentBackground);
+            setPicturePuzzle(puzzle,"effect1");
             //puzzle->show();
             listItems.push_back(std::move(puzzle));
             zOrder++;
@@ -203,6 +199,9 @@ void MainWindow::setPicturePuzzle(QLabel *item, const QString &effect)
     p.end();
     item->setPixmap(temp);
 
+#ifdef QT_DEBUG
+    temp.save("/tmp/t.jpg","JPG");
+#endif
 }
 
 void MainWindow::setupButtons()
@@ -214,7 +213,6 @@ void MainWindow::setupButtons()
 
     btnNewPuzzle = new QPushButton(this);
     btnNewPuzzle->setShortcut(QKeySequence::New);
-    btnNewPuzzle->setFlat(true);
     btnNewPuzzle->setIcon(QIcon(pixmapNewBtn));
     btnNewPuzzle->setIconSize(btnSize);
     btnNewPuzzle->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
@@ -225,7 +223,6 @@ void MainWindow::setupButtons()
 
     btnSavePuzzle = new QPushButton(this);
     btnSavePuzzle->setShortcut(QKeySequence::Save);
-    btnSavePuzzle->setFlat(true);
     btnSavePuzzle->setIcon(QIcon(pixmapSaveBtn));
     btnSavePuzzle->setIconSize(btnSize);
     btnSavePuzzle->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
@@ -236,7 +233,6 @@ void MainWindow::setupButtons()
 
     btnLoadPuzzle = new QPushButton(this);
     btnLoadPuzzle->setShortcut(Qt::CTRL+Qt::Key_L);
-    btnLoadPuzzle->setFlat(true);
     btnLoadPuzzle->setIcon(QIcon(pixmapLoadBtn));
     btnLoadPuzzle->setIconSize(btnSize);
     btnLoadPuzzle->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
@@ -247,7 +243,6 @@ void MainWindow::setupButtons()
 
     btnAlignment = new QPushButton(this);
     btnAlignment->setShortcut(Qt::CTRL+Qt::Key_A);
-    btnAlignment->setFlat(true);
     btnAlignment->setIcon(QIcon(pixmapAligBtn));
     btnAlignment->setIconSize(btnSize);
     btnAlignment->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
@@ -258,7 +253,6 @@ void MainWindow::setupButtons()
 
     btnPreview = new QPushButton(this);
     btnPreview->setShortcut(QKeySequence::Print);
-    btnPreview->setFlat(true);
     btnPreview->setIcon(QIcon(pixmapPreviewBtn));
     btnPreview->setIconSize(btnSize);
     btnPreview->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
@@ -269,7 +263,6 @@ void MainWindow::setupButtons()
 
     btnAbout = new QPushButton(this);
     btnAbout->setShortcut(Qt::CTRL+Qt::Key_I);
-    btnAbout->setFlat(true);
     btnAbout->setIcon(QIcon(pixmapAboutBtn));
     btnAbout->setIconSize(btnSize);
     btnAbout->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
@@ -280,7 +273,6 @@ void MainWindow::setupButtons()
 
     btnExit = new QPushButton(this);
     btnExit->setShortcut(QKeySequence::Quit);
-    btnExit->setFlat(true);
     btnExit->setIcon(QIcon(pixmapExitBtn));
     btnExit->setIconSize(btnSize);
     btnExit->setStyleSheet("QPushButton{border-radius:5px;border: 1px solid transparent; background: transparent}");
