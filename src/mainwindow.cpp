@@ -66,10 +66,10 @@ void MainWindow::alignmentPuzzle()
     for (auto *item:listItems){
         quint32 x = gen->bounded(0,h);
         quint32 y = gen->bounded(0,w);
-        item->move(0-widgetTable->x()+x,0-widgetTable->y()+y);
+        //item->move(0-widgetTable->x()+x,0-widgetTable->y()+y);
 
         //setPicturePuzzle(item,"effect1");
-        item->show();
+        //item->show();
     }
 }
 
@@ -123,7 +123,7 @@ void MainWindow::createPuzzle()
             }
 
             if ( (y==0) && (x!=0) ){
-                typePuzzle=( isEven( x ) ? "1-t" : "2-2" );
+                typePuzzle=( isEven( x ) ? "1-t" : "2-t" );
             }
 
             if (x==countX-1){
@@ -138,6 +138,20 @@ void MainWindow::createPuzzle()
                     }
                 }
             }
+
+            if (y==countY-1){
+                if (x==0){
+                    typePuzzle=( isEven( y ) ? "2-l-b" : "1-l-b" );
+                }else{
+                    if ( (isEven( countX ) && isEven( countY )) ||
+                         (!isEven( countX ) && !isEven( countY )) ){
+                        typePuzzle="2-b";
+                    }else{
+                        typePuzzle="1-b";
+                    }
+                }
+            }
+
             if (x==countX-1 && y==countY-1){
                 if ( (isEven( countX ) && isEven( countY )) ||
                      (!isEven( countX ) && !isEven( countY )) ){
@@ -157,7 +171,7 @@ void MainWindow::createPuzzle()
             puzzle->setProperty("zOrder",zOrder);
             puzzle->setAttribute(Qt::WA_TranslucentBackground);
             setPicturePuzzle(puzzle,"effect1");
-            //puzzle->show();
+            puzzle->show();
             listItems.push_back(std::move(puzzle));
             zOrder++;
 
@@ -200,7 +214,11 @@ void MainWindow::setPicturePuzzle(QLabel *item, const QString &effect)
     item->setPixmap(temp);
 
 #ifdef QT_DEBUG
-    temp.save("/tmp/t.jpg","JPG");
+    QString fn = QString("/tmp/%1_%2piece%3.jpg")
+            .arg(cell_x)
+            .arg(cell_y)
+            .arg(typePuzzle);
+    temp.save(fn,"JPG");
 #endif
 }
 
