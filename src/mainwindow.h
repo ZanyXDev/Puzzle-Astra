@@ -15,7 +15,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QSizePolicy>
-
+#include <QPropertyAnimation>
+#include <QParallelAnimationGroup>
 
 class MainWindow : public QMainWindow
 {
@@ -55,6 +56,8 @@ private:
     QString puzzleFilename;
     QPixmap puzzlePixmap;
 
+    QParallelAnimationGroup puzzleAnimationGroup;
+
     int puzzleOrigWidth = 200;
     int puzzleOrigHeight = 165;
 
@@ -70,5 +73,11 @@ private:
 
     bool isEven(int number);
     void setPicturePuzzle(QLabel *item, const QString &effect);
+    /**
+     * @brief setupAnimation for puzzleItem
+     * @param item puzzleItem
+     * @param mode true ordered, false random
+     */
+    void setupAnimation(QLabel *item, int pos_x=0,int pos_y=0,bool mode=false);
 };
 
