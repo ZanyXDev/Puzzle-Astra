@@ -2,6 +2,8 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    //TODO load setting from QSetting
+    //this->showPuzzleBeforStart = true;
     this->setWindowTitle(tr("Astra Puzzle v0.1-%1").arg(GIT_HASH));
     this->setWindowIcon(QIcon(":/res/images/puzzle.png"));
 
@@ -26,7 +28,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 void MainWindow::newPuzzle()
 {
-    qDebug() << "new puzzle";
     //TODO load last open picture folder from config [QSettings]
     lastPath= QString("");
     QString filename = QFileDialog::getOpenFileName(
@@ -38,14 +39,26 @@ void MainWindow::newPuzzle()
     {
         return;
     }
+
     //TODO save last open picture folder to config [QSettings]
     puzzleFilename = QFileInfo(filename).fileName();
     puzzlePixmap = QPixmap(filename);
 
-    this->setWindowTitle(QString(tr("Puzzle [%1]")).arg(puzzleFilename));
+    changeWindowSizeAnimated();
 
-    createPuzzle();
-    alignmentPuzzle();
+    puzzleAnimationGroup.clear();
+
+    int currentPuzzleCount = createPuzzle();
+
+    if (showPuzzleBeforStart) {
+        alignmentPuzzle();
+    }else {
+        puzzleAnimationGroup.start();
+    }
+    this->setWindowTitle(QString(tr("Puzzle [%1] with %2 pieces."))
+                         .arg(puzzleFilename)
+                         .arg(currentPuzzleCount)
+                         );
 }
 
 void MainWindow::savePuzzleToFile()
@@ -60,17 +73,17 @@ void MainWindow::loadPuzzle()
 
 void MainWindow::alignmentPuzzle()
 {
-    int h = centralWidget->width()-puzzleWidth-100;
-    int w = centralWidget->height()-puzzleHeight-100;
-    QRandomGenerator *gen = QRandomGenerator::system();
-    for (auto *item:listItems){
-        quint32 x = gen->bounded(0,h);
-        quint32 y = gen->bounded(0,w);
-        //item->move(0-widgetTable->x()+x,0-widgetTable->y()+y);
+    puzzleAnimationGroup.clear();
 
-        //setPicturePuzzle(item,"effect1");
-        //item->show();
+    if (showPuzzleBeforStart) {
+        puzzleAnimationGroup.addPause(500);
     }
+
+    for (auto *item:qAsConst(listItems)){ // ok, no detach attempt
+        setupAnimation(item,0,0,false);
+    }
+
+    puzzleAnimationGroup.start();
 }
 
 void MainWindow::previewPuzzle()
@@ -90,8 +103,9 @@ void MainWindow::aboutApp()
  * @brief MainWindow::createPuzzle
  * @note  Creating a puzzle from an puzzlePixmap
  */
-void MainWindow::createPuzzle()
+int MainWindow::createPuzzle()
 {
+
     int countX = puzzlePixmap.width()/puzzleWidth;
     int countY = puzzlePixmap.height()/puzzleHeight;
 
@@ -163,7 +177,6 @@ void MainWindow::createPuzzle()
 
             // create item puzzle
             QLabel *puzzle = new QLabel(widgetTable);
-            puzzle->setGeometry(x*(puzzleWidth+20),10+y*(puzzleHeight+20),puzzleOrigWidth,puzzleOrigHeight);
             puzzle->setScaledContents(true);
             puzzle->setProperty("cell_x",x);
             puzzle->setProperty("cell_y",y);
@@ -171,13 +184,16 @@ void MainWindow::createPuzzle()
             puzzle->setProperty("zOrder",zOrder);
             puzzle->setAttribute(Qt::WA_TranslucentBackground);
             setPicturePuzzle(puzzle,"effect1");
+            setupAnimation(puzzle,
+                           x*(puzzleWidth+5),y*(puzzleHeight+5),
+                           showPuzzleBeforStart);
             puzzle->show();
             listItems.push_back(std::move(puzzle));
             zOrder++;
 
         }
     }
-
+    return countX * countY;
 }
 
 bool MainWindow::isEven(int number)
@@ -213,13 +229,33 @@ void MainWindow::setPicturePuzzle(QLabel *item, const QString &effect)
     p.end();
     item->setPixmap(temp);
 
-#ifdef QT_DEBUG
+#ifdef QT_DEBUG_OFF
     QString fn = QString("/tmp/%1_%2piece%3.jpg")
             .arg(cell_x)
             .arg(cell_y)
             .arg(typePuzzle);
     temp.save(fn,"JPG");
 #endif
+}
+
+void MainWindow::setupAnimation(QLabel *item, int pos_x, int pos_y, bool mode)
+{
+    QPropertyAnimation *anim = new QPropertyAnimation(item,"geometry");
+
+    anim->setStartValue(QRect(0,0,puzzleOrigWidth,puzzleOrigHeight));
+    if (mode){
+        anim->setDuration(125);
+        anim->setEndValue(QRect(pos_x,pos_y,puzzleOrigWidth,puzzleOrigHeight));
+        anim->setEasingCurve(QEasingCurve::InOutBounce);
+    }else{
+        anim->setDuration(75);
+        anim->setEndValue(QRect(QRandomGenerator::global()->bounded(0,centralWidget->width()-puzzleWidth-100),
+                                QRandomGenerator::global()->bounded(0,centralWidget->height()-puzzleHeight-100),
+                                puzzleOrigWidth,puzzleOrigHeight));
+        anim->setEasingCurve(QEasingCurve::InCubic);
+    }
+
+    puzzleAnimationGroup.addAnimation(anim);
 }
 
 void MainWindow::setupButtons()
@@ -319,4 +355,16 @@ void MainWindow::setupButtons()
     btnLayout->addWidget(btnAbout);
     btnLayout->addWidget(btnExit);
 
+}
+
+void MainWindow::changeWindowSizeAnimated()
+{
+    QPropertyAnimation *anim = new QPropertyAnimation(this,"geometry");
+    int cWidth = std::max((puzzlePixmap.width()+puzzleWidth),this->width());
+    int cHeight = std::max((puzzlePixmap.height()+puzzleHeight),this->height());
+
+    anim->setDuration(300);
+    anim->setStartValue(QRect(this->x(),this->y(),this->width(),this->height()));
+    anim->setEndValue(QRect(this->x(),this->y(),cWidth,cHeight));
+    anim->start();
 }

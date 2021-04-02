@@ -15,6 +15,9 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QSizePolicy>
+#include <QPropertyAnimation>
+#include <QSequentialAnimationGroup>
+#include <QTimer>
 
 
 class MainWindow : public QMainWindow
@@ -55,6 +58,8 @@ private:
     QString puzzleFilename;
     QPixmap puzzlePixmap;
 
+    QSequentialAnimationGroup puzzleAnimationGroup;
+
     int puzzleOrigWidth = 200;
     int puzzleOrigHeight = 165;
 
@@ -64,11 +69,22 @@ private:
     int puzzleWidth = puzzleOrigWidth-57;       // 143
     int puzzleHeight = puzzleOrigHeight-57;     // 108
     int distanceForAutoBonding = 15;
-
+    bool showPuzzleBeforStart = false;
     void setupButtons();
-    void createPuzzle();
+    /**
+     * @brief createPuzzle
+     * @return currentPuzzleCount
+     */
+    int createPuzzle();
 
     bool isEven(int number);
     void setPicturePuzzle(QLabel *item, const QString &effect);
+    /**
+     * @brief setupAnimation for puzzleItem
+     * @param item puzzleItem
+     * @param mode true ordered, false random
+     */
+    void setupAnimation(QLabel *item, int pos_x=0,int pos_y=0,bool mode=false);
+    void changeWindowSizeAnimated();
 };
 
