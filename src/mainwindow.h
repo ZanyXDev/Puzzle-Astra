@@ -22,6 +22,9 @@
 #include <QEvent>
 #include <QScrollArea>
 
+#ifdef QT_DEBUG
+#include <QElapsedTimer>
+#endif
 
 class MainWindow : public QMainWindow
 {

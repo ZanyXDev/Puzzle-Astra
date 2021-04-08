@@ -69,21 +69,33 @@ void MainWindow::newPuzzle()
 
     puzzleAnimationGroup.clear();
 
-
+#ifdef QT_DEBUG
     qDebug() << QString("Before widgetTable size w%1,h%2")
                 .arg(widgetTable->width())
                 .arg(widgetTable->height());
+    QElapsedTimer timer;
+    timer.start();
+#endif
 
     int currentPuzzleCount = createPuzzle();
 
-    changeWindowSizeAnimated();
+#ifdef QT_DEBUG
+    qDebug() << "The slow operation took" << timer.elapsed() << "milliseconds";
+    qDebug() << "The slow operation took" << timer.nsecsElapsed() << "nanoseconds";
+#endif
 
+    changeWindowSizeAnimated();
+#ifdef QT_DEBUG
     qDebug() << QString("after widgetTable size w%1,h%2")
                 .arg(widgetTable->width())
                 .arg(widgetTable->height());
-
+#endif
     if (showPuzzleBeforStart) {
         puzzleAnimationGroup.addPause(500);
+#ifdef QT_DEBUG
+        qDebug() << "Function Name: " << Q_FUNC_INFO;
+        qDebug() << "puzzleAnimationGroup.animationCount:" << puzzleAnimationGroup.animationCount();
+#endif
         puzzleAnimationGroup.start();
     }
 
@@ -112,7 +124,10 @@ void MainWindow::alignmentPuzzle()
     for (auto *item:qAsConst(listItems)){ // ok, no detach attempt
         setupAnimation(item,0,0,false);
     }
-
+#ifdef QT_DEBUG
+    qDebug() << "Function Name: " << Q_FUNC_INFO;
+    qDebug() << "puzzleAnimationGroup.animationCount:" << puzzleAnimationGroup.animationCount();
+#endif
     puzzleAnimationGroup.start();
 }
 
@@ -144,6 +159,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
  */
 int MainWindow::createPuzzle()
 {
+
     int countX = puzzlePixmap.width()/puzzleWidth;
     int countY = puzzlePixmap.height()/puzzleHeight;
 
@@ -244,6 +260,12 @@ bool MainWindow::isEven(int number)
 //TODO rewrite to QPixmap getPixmap(Qt::ReturnByValueConstant) const
 void MainWindow::setPicturePuzzle(QLabel *item, const QString &effect)
 {
+#ifdef QT_DEBUG
+    qDebug() << Q_FUNC_INFO;
+    QElapsedTimer timer;
+    timer.start();
+#endif
+
     QImage pix_temp = puzzlePixmap.toImage();
     QPixmap pix(pix_temp.width()+puzzleOrigWidth*2,
                 pix_temp.height()+puzzleOrigHeight*2);
@@ -268,6 +290,10 @@ void MainWindow::setPicturePuzzle(QLabel *item, const QString &effect)
     p.end();
     item->setPixmap(temp);
 
+#ifdef QT_DEBUG
+    qDebug() << "The slow operation took" << timer.elapsed() << "milliseconds";
+    qDebug() << "The slow operation took" << timer.nsecsElapsed() << "nanoseconds";
+#endif
 #ifdef QT_DEBUG_OFF
     QString fn = QString("/tmp/%1_%2piece%3.jpg")
             .arg(cell_x)
