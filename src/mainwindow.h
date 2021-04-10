@@ -18,7 +18,14 @@
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
 #include <QTimer>
+#include <QMouseEvent>
+#include <QEvent>
+#include <QScrollArea>
 
+
+#ifdef QT_DEBUG
+#include <QElapsedTimer>
+#endif
 
 class MainWindow : public QMainWindow
 {
@@ -36,30 +43,11 @@ public slots:
     void previewPuzzle();
     void aboutApp();
 
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
 private:
-    QVector<QLabel*> listItems;
-
-    QLabel *backgroundButtons;
-    QLabel *widgetTable;
-
-    QPushButton *btnNewPuzzle;
-    QPushButton *btnSavePuzzle;
-    QPushButton *btnLoadPuzzle;
-    QPushButton *btnAlignment;
-    QPushButton *btnPreview;
-    QPushButton *btnAbout;
-    QPushButton *btnExit;
-
-    QWidget *centralWidget;
-    QHBoxLayout *centralLayout;
-    QVBoxLayout *btnLayout;
-
-    QString lastPath;
-    QString puzzleFilename;
-    QPixmap puzzlePixmap;
-
-    QSequentialAnimationGroup puzzleAnimationGroup;
-
+    //TODO init list for class member
     int puzzleOrigWidth = 200;
     int puzzleOrigHeight = 165;
 
@@ -69,7 +57,31 @@ private:
     int puzzleWidth = puzzleOrigWidth-57;       // 143
     int puzzleHeight = puzzleOrigHeight-57;     // 108
     int distanceForAutoBonding = 15;
+
     bool showPuzzleBeforStart = false;
+
+    QString lastPath;
+    QString puzzleFilename;
+
+    QWidget *widgetTable;
+    QWidget *centralWidget;
+
+    QPushButton *btnNewPuzzle;
+    QPushButton *btnSavePuzzle;
+    QPushButton *btnLoadPuzzle;
+    QPushButton *btnAlignment;
+    QPushButton *btnPreview;
+    QPushButton *btnAbout;
+    QPushButton *btnExit;
+
+    QHBoxLayout *centralLayout;
+    QVBoxLayout *btnLayout;
+
+    QPixmap puzzlePixmap;
+
+    QSequentialAnimationGroup puzzleAnimationGroup;
+    QVector<QLabel*> listItems;
+
     void setupButtons();
     /**
      * @brief createPuzzle
@@ -78,6 +90,7 @@ private:
     int createPuzzle();
 
     bool isEven(int number);
+
     void setPicturePuzzle(QLabel *item, const QString &effect);
     /**
      * @brief setupAnimation for puzzleItem
@@ -85,6 +98,7 @@ private:
      * @param mode true ordered, false random
      */
     void setupAnimation(QLabel *item, int pos_x=0,int pos_y=0,bool mode=false);
+
     void changeWindowSizeAnimated();
 };
 

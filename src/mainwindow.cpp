@@ -3,23 +3,39 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     //TODO load setting from QSetting
-    //this->showPuzzleBeforStart = true;
+    this->showPuzzleBeforStart = true;
     this->setWindowTitle(tr("Astra Puzzle v0.1-%1").arg(GIT_HASH));
     this->setWindowIcon(QIcon(":/res/images/puzzle.png"));
 
-    centralWidget = new QWidget();
+    centralWidget = new QWidget(this);
     centralLayout = new QHBoxLayout();
 
     centralWidget->setLayout(centralLayout);
 
-    widgetTable = new QLabel();
-    widgetTable->setFrameShape(QFrame::Box);
+    //    widgetTable = new QWidget(this);
+    //    widgetTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    //    widgetTable->setMouseTracking(true);
+    //    widgetTable->installEventFilter(this);
+
+
+    widgetTable = new QWidget(this);
+    //TODO need auto crop load images to max_size 2048
+    widgetTable->setFixedSize(2048, 2048);
+
+    QScrollArea* m_pQScrollArea = new QScrollArea;
+    m_pQScrollArea->setWidget(widgetTable);
+    m_pQScrollArea->setWidgetResizable(true);
+    m_pQScrollArea->viewport()->installEventFilter(this);
+
+    //TODO set style for scrollbar
+    m_pQScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_pQScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     btnLayout =new QVBoxLayout();
 
     setupButtons();
 
-    centralLayout->addWidget(widgetTable,9);
+    centralLayout->addWidget(m_pQScrollArea,9);
     centralLayout->addLayout(btnLayout,1);
     setCentralWidget(centralWidget);
 }
@@ -44,17 +60,47 @@ void MainWindow::newPuzzle()
     puzzleFilename = QFileInfo(filename).fileName();
     puzzlePixmap = QPixmap(filename);
 
-    changeWindowSizeAnimated();
+    int cWidth = std::max((puzzlePixmap.width()+(2*puzzleWidth)),
+                          widgetTable->width());
+    int cHeight = std::max((puzzlePixmap.height()+(2*puzzleHeight)),
+                           widgetTable->height());
+
+    widgetTable->setFixedSize(cWidth, cHeight);
 
     puzzleAnimationGroup.clear();
 
+#ifdef QT_DEBUG
+    qDebug() << QString("Before widgetTable size w%1,h%2")
+                .arg(widgetTable->width())
+                .arg(widgetTable->height());
+    QElapsedTimer timer;
+    timer.start();
+#endif
+
     int currentPuzzleCount = createPuzzle();
 
+#ifdef QT_DEBUG
+    qDebug() << "The slow operation took" << timer.elapsed() << "milliseconds";
+    qDebug() << "The slow operation took" << timer.nsecsElapsed() << "nanoseconds";
+#endif
+
+    changeWindowSizeAnimated();
+#ifdef QT_DEBUG
+    qDebug() << QString("after widgetTable size w%1,h%2")
+                .arg(widgetTable->width())
+                .arg(widgetTable->height());
+#endif
     if (showPuzzleBeforStart) {
-        alignmentPuzzle();
-    }else {
+        puzzleAnimationGroup.addPause(500);
+#ifdef QT_DEBUG
+        qDebug() << "Function Name: " << Q_FUNC_INFO;
+        qDebug() << "puzzleAnimationGroup.animationCount:" << puzzleAnimationGroup.animationCount();
+#endif
         puzzleAnimationGroup.start();
     }
+
+    // alignmentPuzzle();
+
     this->setWindowTitle(QString(tr("Puzzle [%1] with %2 pieces."))
                          .arg(puzzleFilename)
                          .arg(currentPuzzleCount)
@@ -75,14 +121,13 @@ void MainWindow::alignmentPuzzle()
 {
     puzzleAnimationGroup.clear();
 
-    if (showPuzzleBeforStart) {
-        puzzleAnimationGroup.addPause(500);
-    }
-
     for (auto *item:qAsConst(listItems)){ // ok, no detach attempt
         setupAnimation(item,0,0,false);
     }
-
+#ifdef QT_DEBUG
+    qDebug() << "Function Name: " << Q_FUNC_INFO;
+    qDebug() << "puzzleAnimationGroup.animationCount:" << puzzleAnimationGroup.animationCount();
+#endif
     puzzleAnimationGroup.start();
 }
 
@@ -97,6 +142,15 @@ void MainWindow::aboutApp()
 }
 
 
+// ------------------- Protected functions
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::MouseMove){
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        qDebug() << QString("Mouse move (%1,%2)").arg(mouseEvent->pos().x()).arg(mouseEvent->pos().y());
+    }
+    return false;
+}
 // ------------------- Private functions ------------------------------------
 
 /**
@@ -183,6 +237,7 @@ int MainWindow::createPuzzle()
             puzzle->setProperty("type_puzzle",typePuzzle);
             puzzle->setProperty("zOrder",zOrder);
             puzzle->setAttribute(Qt::WA_TranslucentBackground);
+
             setPicturePuzzle(puzzle,"effect1");
             setupAnimation(puzzle,
                            x*(puzzleWidth+5),y*(puzzleHeight+5),
@@ -205,6 +260,12 @@ bool MainWindow::isEven(int number)
 //TODO rewrite to QPixmap getPixmap(Qt::ReturnByValueConstant) const
 void MainWindow::setPicturePuzzle(QLabel *item, const QString &effect)
 {
+#ifdef QT_DEBUG
+    qDebug() << Q_FUNC_INFO;
+    QElapsedTimer timer;
+    timer.start();
+#endif
+
     QImage pix_temp = puzzlePixmap.toImage();
     QPixmap pix(pix_temp.width()+puzzleOrigWidth*2,
                 pix_temp.height()+puzzleOrigHeight*2);
@@ -227,8 +288,13 @@ void MainWindow::setPicturePuzzle(QLabel *item, const QString &effect)
     QPainter p(&temp);
     p.drawImage(0,0,puzzle_top.copy(0,0,puzzleOrigWidth,puzzleOrigHeight),0,0);
     p.end();
-    item->setPixmap(temp);
 
+    item->setPixmap(temp);
+#ifdef QT_DEBUG
+    qDebug() <<  Q_FUNC_INFO << " elapsed"
+             << timer.elapsed() << "milliseconds,"
+             << timer.nsecsElapsed() << "nanoseconds";
+#endif
 #ifdef QT_DEBUG_OFF
     QString fn = QString("/tmp/%1_%2piece%3.jpg")
             .arg(cell_x)
@@ -244,11 +310,11 @@ void MainWindow::setupAnimation(QLabel *item, int pos_x, int pos_y, bool mode)
 
     anim->setStartValue(QRect(0,0,puzzleOrigWidth,puzzleOrigHeight));
     if (mode){
-        anim->setDuration(125);
+        anim->setDuration(50);
         anim->setEndValue(QRect(pos_x,pos_y,puzzleOrigWidth,puzzleOrigHeight));
-        anim->setEasingCurve(QEasingCurve::InOutBounce);
+        anim->setEasingCurve(QEasingCurve::InCurve);
     }else{
-        anim->setDuration(75);
+        anim->setDuration(25);
         anim->setEndValue(QRect(QRandomGenerator::global()->bounded(0,centralWidget->width()-puzzleWidth-100),
                                 QRandomGenerator::global()->bounded(0,centralWidget->height()-puzzleHeight-100),
                                 puzzleOrigWidth,puzzleOrigHeight));
@@ -360,11 +426,18 @@ void MainWindow::setupButtons()
 void MainWindow::changeWindowSizeAnimated()
 {
     QPropertyAnimation *anim = new QPropertyAnimation(this,"geometry");
-    int cWidth = std::max((puzzlePixmap.width()+puzzleWidth),this->width());
-    int cHeight = std::max((puzzlePixmap.height()+puzzleHeight),this->height());
+    int cWidth = std::max((puzzlePixmap.width()+(2*puzzleWidth)),
+                          this->width());
+    int cHeight = std::max((puzzlePixmap.height()+(2*puzzleHeight)),
+                           this->height());
 
     anim->setDuration(300);
     anim->setStartValue(QRect(this->x(),this->y(),this->width(),this->height()));
     anim->setEndValue(QRect(this->x(),this->y(),cWidth,cHeight));
     anim->start();
+    qDebug() << QString("puzzlePixmap size w%1,h%2")
+                .arg(puzzlePixmap.width())
+                .arg(puzzlePixmap.height());
+
+    qDebug() << QString("New wnd size w%1,h%2").arg(cWidth).arg(cHeight);
 }
