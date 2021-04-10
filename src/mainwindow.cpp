@@ -288,11 +288,12 @@ void MainWindow::setPicturePuzzle(QLabel *item, const QString &effect)
     QPainter p(&temp);
     p.drawImage(0,0,puzzle_top.copy(0,0,puzzleOrigWidth,puzzleOrigHeight),0,0);
     p.end();
-    item->setPixmap(temp);
 
+    item->setPixmap(temp);
 #ifdef QT_DEBUG
-    qDebug() << "The slow operation took" << timer.elapsed() << "milliseconds";
-    qDebug() << "The slow operation took" << timer.nsecsElapsed() << "nanoseconds";
+    qDebug() <<  Q_FUNC_INFO << " elapsed"
+             << timer.elapsed() << "milliseconds,"
+             << timer.nsecsElapsed() << "nanoseconds";
 #endif
 #ifdef QT_DEBUG_OFF
     QString fn = QString("/tmp/%1_%2piece%3.jpg")
