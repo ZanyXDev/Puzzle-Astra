@@ -91,7 +91,9 @@ void MainWindow::newPuzzle()
                 .arg(widgetTable->height());
 #endif
     if (showPuzzleBeforStart) {
-        puzzleAnimationGroup.addPause(500);
+        //puzzleAnimationGroup.addPause(500);
+        //TODO warning cannot pause stoped animation
+        puzzleAnimationGroup.pause();
 #ifdef QT_DEBUG
         qDebug() << "Function Name: " << Q_FUNC_INFO;
         qDebug() << "puzzleAnimationGroup.animationCount:" << puzzleAnimationGroup.animationCount();
@@ -166,6 +168,14 @@ int MainWindow::createPuzzle()
     QPixmap pixPreview = puzzlePixmap.copy(0,0,countX*puzzleWidth,countY*puzzleHeight);
     //TODO setup Widget preview  picture as  preview->setPicture(pixPreview);
 
+    QImage pix_temp = puzzlePixmap.toImage();
+    QPixmap pix(pix_temp.width()+puzzleOrigWidth*2,
+                pix_temp.height()+puzzleOrigHeight*2);
+
+    QPainter painterPix(&pix);
+    painterPix.drawImage(puzzleBorderWidth,puzzleBorderHeight,pix_temp,0,0);
+    painterPix.end();
+
     /**
      * @brief qDeleteAll delete all list items and clear list
      */
@@ -238,7 +248,13 @@ int MainWindow::createPuzzle()
             puzzle->setProperty("zOrder",zOrder);
             puzzle->setAttribute(Qt::WA_TranslucentBackground);
 
-            setPicturePuzzle(puzzle,"effect1");
+            QPixmap temp = pix.copy(x*puzzleWidth,y*puzzleHeight,
+                                       puzzleOrigWidth,puzzleOrigHeight);
+            QFuture<QPixmap> future = QtConcurrent::run(this, &MainWindow::makePicturePuzzle,
+                                                        temp, typePuzzle,QString("effect1"));
+
+            puzzle->setPixmap( future.result() );
+
             setupAnimation(puzzle,
                            x*(puzzleWidth+5),y*(puzzleHeight+5),
                            showPuzzleBeforStart);
@@ -254,54 +270,6 @@ int MainWindow::createPuzzle()
 bool MainWindow::isEven(int number)
 {
     return !(number & 1);
-}
-
-// Setting the shape of the puzzle on the image
-//TODO rewrite to QPixmap getPixmap(Qt::ReturnByValueConstant) const
-void MainWindow::setPicturePuzzle(QLabel *item, const QString &effect)
-{
-#ifdef QT_DEBUG
-    qDebug() << Q_FUNC_INFO;
-    QElapsedTimer timer;
-    timer.start();
-#endif
-
-    QImage pix_temp = puzzlePixmap.toImage();
-    QPixmap pix(pix_temp.width()+puzzleOrigWidth*2,
-                pix_temp.height()+puzzleOrigHeight*2);
-
-    QPainter painterPix(&pix);
-    painterPix.drawImage(puzzleBorderWidth,puzzleBorderHeight,pix_temp,0,0);
-    painterPix.end();
-
-    QString typePuzzle = item->property("type_puzzle").toString();
-    QPixmap puzzle_mask(QLatin1String(":res/images/pieces/piece%1.png").arg(typePuzzle));
-    QImage puzzle_top(QLatin1String(":res/images/pieces/piece%1_%2.png").arg(typePuzzle).arg(effect));
-
-    int cell_x = item->property("cell_x").toInt();
-    int cell_y = item->property("cell_y").toInt();
-
-    QPixmap temp = pix.copy(cell_x*puzzleWidth,cell_y*puzzleHeight,puzzleOrigWidth,puzzleOrigHeight);
-
-    temp.setMask(puzzle_mask.createMaskFromColor(Qt::black,Qt::MaskOutColor));
-
-    QPainter p(&temp);
-    p.drawImage(0,0,puzzle_top.copy(0,0,puzzleOrigWidth,puzzleOrigHeight),0,0);
-    p.end();
-
-    item->setPixmap(temp);
-#ifdef QT_DEBUG
-    qDebug() <<  Q_FUNC_INFO << " elapsed"
-             << timer.elapsed() << "milliseconds,"
-             << timer.nsecsElapsed() << "nanoseconds";
-#endif
-#ifdef QT_DEBUG_OFF
-    QString fn = QString("/tmp/%1_%2piece%3.jpg")
-            .arg(cell_x)
-            .arg(cell_y)
-            .arg(typePuzzle);
-    temp.save(fn,"JPG");
-#endif
 }
 
 void MainWindow::setupAnimation(QLabel *item, int pos_x, int pos_y, bool mode)
@@ -441,3 +409,34 @@ void MainWindow::changeWindowSizeAnimated()
 
     qDebug() << QString("New wnd size w%1,h%2").arg(cWidth).arg(cHeight);
 }
+
+QPixmap MainWindow::makePicturePuzzle(QPixmap &pixmap, QString puzzleType, QString effectType)
+{
+#ifdef QT_DEBUG
+    QElapsedTimer timer;
+    timer.start();
+
+    QPixmap temp = pixmap;
+    QPixmap puzzle_mask(QLatin1String(":res/images/pieces/piece%1.png").arg(puzzleType));
+    QImage puzzle_top(QLatin1String(":res/images/pieces/piece%1_%2.png").arg(puzzleType).arg(effectType));
+
+    temp.setMask(puzzle_mask.createMaskFromColor(Qt::black,Qt::MaskOutColor));
+
+    QPainter p(&temp);
+    p.drawImage(0,0,puzzle_top.copy(0,0,puzzleOrigWidth,puzzleOrigHeight),0,0);
+    p.end();
+
+    temp.save("/tmp/temp.jpg");
+    qDebug() <<  Q_FUNC_INFO
+             << " puzzle_mask" <<  QLatin1String(":res/images/pieces/piece%1.png").arg(puzzleType)
+             << " puzzle_top" <<   QLatin1String(":res/images/pieces/piece%1_%2.png").arg(puzzleType).arg(effectType)
+             << " elapsed"
+             << timer.elapsed() << "milliseconds,"
+             << timer.nsecsElapsed() << "nanoseconds";
+#endif
+    return temp;
+}
+
+
+
+
