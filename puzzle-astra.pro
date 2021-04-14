@@ -1,7 +1,7 @@
 !versionAtLeast(QT_VERSION, 5.10.0):error("Requires Qt version 5.10.0 or greater.")
 
 TEMPLATE +=app
-QT       += core gui
+QT       += core gui concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
