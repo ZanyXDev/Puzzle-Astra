@@ -107,6 +107,54 @@ void MainWindow::newPuzzle()
                          .arg(puzzleFilename)
                          .arg(currentPuzzleCount)
                          );
+
+    // Use threads for create puzzle image
+
+    // Create a progress dialog.
+    QProgressDialog dialog;
+    dialog.setLabelText(QString(tr("Progressing using %1 thread(s)...")).arg(QThread::idealThreadCount()));
+
+    // Create a QFutureWatcher and connect signals and slots.
+    QFutureWatcher<void> futureWatcher;
+    connect(&futureWatcher, &QFutureWatcher<void>::finished, &dialog, &QProgressDialog::reset);
+    connect(&dialog, &QProgressDialog::canceled, &futureWatcher, &QFutureWatcher<void>::cancel);
+    connect(&futureWatcher,  &QFutureWatcher<void>::progressRangeChanged, &dialog, &QProgressDialog::setRange);
+    connect(&futureWatcher, &QFutureWatcher<void>::progressValueChanged,  &dialog, &QProgressDialog::setValue);
+    // Our function to compute
+
+    std::function<void (QLabel *)> doPixMapPuzzle = [](QLabel *iteration) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
+        QPixmap pm = item->pixmap();
+#else
+        QPixmap pm = iteration->pixmap(Qt::ReturnByValue);
+#endif
+        QString puzzleType = iteration->property("type_puzzle").toString();
+        QString effectType = iteration->property("effect_type").toString();
+        QPixmap puzzle_mask(QLatin1String(":res/images/pieces/piece%1.png").arg(puzzleType));
+        QImage puzzle_top(QLatin1String(":res/images/pieces/piece%1_%2.png").arg(puzzleType).arg(effectType));
+
+        pm.setMask(puzzle_mask.createMaskFromColor(Qt::black,Qt::MaskOutColor));
+
+        QPainter p(&pm);
+        p.drawImage(0,0,puzzle_top.copy(0,0,200,165),0,0);
+        p.end();
+
+        iteration->setPixmap(pm);
+
+        qDebug() << "iteration" << iteration->property("test").toString() << "in thread" << QThread::currentThreadId();
+    };
+
+    // Start the computation.
+
+    futureWatcher.setFuture(QtConcurrent::map(listItems, doPixMapPuzzle));
+
+    // Display the dialog and start the event loop.
+    dialog.exec();
+
+    futureWatcher.waitForFinished();
+
+    // Query the future to check if was canceled.
+    qDebug() << "Canceled?" << futureWatcher.future().isCanceled();
 }
 
 void MainWindow::savePuzzleToFile()
@@ -246,10 +294,16 @@ int MainWindow::createPuzzle()
             puzzle->setProperty("cell_y",y);
             puzzle->setProperty("type_puzzle",typePuzzle);
             puzzle->setProperty("zOrder",zOrder);
+            puzzle->setProperty("effect_type","effect1");
+            puzzle->setProperty("test",QString("[x%1]:[y%2]").arg(x).arg(y));
             puzzle->setAttribute(Qt::WA_TranslucentBackground);
 
             QPixmap temp = pix.copy(x*puzzleWidth,y*puzzleHeight,
-                                       puzzleOrigWidth,puzzleOrigHeight);
+                                    puzzleOrigWidth,puzzleOrigHeight);
+            puzzle->setPixmap(temp);
+            puzzle->setGeometry(x*(puzzleWidth),y*(puzzleHeight),puzzleOrigWidth,puzzleOrigHeight);
+
+            /**
             QFuture<QPixmap> future = QtConcurrent::run(this, &MainWindow::makePicturePuzzle,
                                                         temp, typePuzzle,QString("effect1"));
 
@@ -258,12 +312,14 @@ int MainWindow::createPuzzle()
             setupAnimation(puzzle,
                            x*(puzzleWidth+5),y*(puzzleHeight+5),
                            showPuzzleBeforStart);
+                           */
             puzzle->show();
             listItems.push_back(std::move(puzzle));
             zOrder++;
 
         }
     }
+
     return countX * countY;
 }
 
@@ -400,43 +456,13 @@ void MainWindow::changeWindowSizeAnimated()
                            this->height());
 
     anim->setDuration(300);
-    anim->setStartValue(QRect(this->x(),this->y(),this->width(),this->height()));
+    anim->setStartValue(QRect(this->x(),this->y(),640,480));
     anim->setEndValue(QRect(this->x(),this->y(),cWidth,cHeight));
     anim->start();
+
     qDebug() << QString("puzzlePixmap size w%1,h%2")
                 .arg(puzzlePixmap.width())
                 .arg(puzzlePixmap.height());
 
     qDebug() << QString("New wnd size w%1,h%2").arg(cWidth).arg(cHeight);
 }
-
-QPixmap MainWindow::makePicturePuzzle(QPixmap &pixmap, QString puzzleType, QString effectType)
-{
-#ifdef QT_DEBUG
-    QElapsedTimer timer;
-    timer.start();
-
-    QPixmap temp = pixmap;
-    QPixmap puzzle_mask(QLatin1String(":res/images/pieces/piece%1.png").arg(puzzleType));
-    QImage puzzle_top(QLatin1String(":res/images/pieces/piece%1_%2.png").arg(puzzleType).arg(effectType));
-
-    temp.setMask(puzzle_mask.createMaskFromColor(Qt::black,Qt::MaskOutColor));
-
-    QPainter p(&temp);
-    p.drawImage(0,0,puzzle_top.copy(0,0,puzzleOrigWidth,puzzleOrigHeight),0,0);
-    p.end();
-
-    temp.save("/tmp/temp.jpg");
-    qDebug() <<  Q_FUNC_INFO
-             << " puzzle_mask" <<  QLatin1String(":res/images/pieces/piece%1.png").arg(puzzleType)
-             << " puzzle_top" <<   QLatin1String(":res/images/pieces/piece%1_%2.png").arg(puzzleType).arg(effectType)
-             << " elapsed"
-             << timer.elapsed() << "milliseconds,"
-             << timer.nsecsElapsed() << "nanoseconds";
-#endif
-    return temp;
-}
-
-
-
-

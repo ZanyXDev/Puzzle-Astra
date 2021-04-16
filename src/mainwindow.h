@@ -21,8 +21,8 @@
 #include <QEvent>
 #include <QScrollArea>
 #include <QVector>
-#include <QFuture>
-#include <QtConcurrent/QtConcurrentRun>
+#include <QtConcurrent>
+#include <QProgressDialog>
 
 
 #ifdef QT_DEBUG
@@ -61,6 +61,7 @@ private:
     int puzzleHeight = puzzleOrigHeight-57;     // 108
     int distanceForAutoBonding = 15;
 
+    //TODO if use threads this options not need - DELETE
     bool showPuzzleBeforStart = false;
 
     QString lastPath;
@@ -102,7 +103,6 @@ private:
     void setupAnimation(QLabel *item, int pos_x=0,int pos_y=0,bool mode=false);
 
     void changeWindowSizeAnimated();
-    QPixmap makePicturePuzzle (QPixmap &pixmap,QString puzzleType,QString effectType);
 
 };
 
