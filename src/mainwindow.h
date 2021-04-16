@@ -6,7 +6,6 @@
 #include <QPushButton>
 #include <QIcon>
 #include <QSize>
-#include <QDebug>
 #include <QFileDialog>
 #include <QPainter>
 #include <QColor>
@@ -16,14 +15,18 @@
 #include <QVBoxLayout>
 #include <QSizePolicy>
 #include <QPropertyAnimation>
-#include <QSequentialAnimationGroup>
+#include <QParallelAnimationGroup>
 #include <QTimer>
 #include <QMouseEvent>
 #include <QEvent>
 #include <QScrollArea>
+#include <QVector>
+#include <QtConcurrent>
+#include <QProgressDialog>
 
 
 #ifdef QT_DEBUG
+#include <QDebug>
 #include <QElapsedTimer>
 #endif
 
@@ -58,6 +61,7 @@ private:
     int puzzleHeight = puzzleOrigHeight-57;     // 108
     int distanceForAutoBonding = 15;
 
+    //TODO if use threads this options not need - DELETE
     bool showPuzzleBeforStart = false;
 
     QString lastPath;
@@ -79,7 +83,7 @@ private:
 
     QPixmap puzzlePixmap;
 
-    QSequentialAnimationGroup puzzleAnimationGroup;
+    QParallelAnimationGroup puzzleAnimationGroup;
     QVector<QLabel*> listItems;
 
     void setupButtons();
@@ -91,7 +95,6 @@ private:
 
     bool isEven(int number);
 
-    void setPicturePuzzle(QLabel *item, const QString &effect);
     /**
      * @brief setupAnimation for puzzleItem
      * @param item puzzleItem
@@ -100,5 +103,6 @@ private:
     void setupAnimation(QLabel *item, int pos_x=0,int pos_y=0,bool mode=false);
 
     void changeWindowSizeAnimated();
+
 };
 
