@@ -15,10 +15,12 @@ include(gitversion.pri)
 
 SOURCES += \
     src/main.cpp \
-    src/mainwindow.cpp
+    src/mainwindow.cpp \
+    src/puzzleboardview.cpp
 
 HEADERS += \
-    src/mainwindow.h
+    src/mainwindow.h \
+    src/puzzleboardview.h
 
 RESOURCES += \
     resources.qrc

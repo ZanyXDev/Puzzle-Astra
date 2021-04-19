@@ -1,4 +1,6 @@
 #include <QApplication>
+//#include <QGuiApplication>
+//#include <QScreen>
 #include <QTranslator>
 #include <QStandardPaths>
 #include <QLibraryInfo>
@@ -18,7 +20,7 @@ int main(int argc, char *argv[]) {
         dirConfig.mkpath(dirConfig.path());
     }
 
-#ifdef QT_DEBUG
+#ifdef QT_DEBUG_1
     // debug, print qrc resources
     QDirIterator it(":/", QDirIterator::Subdirectories);
     while (it.hasNext()) {
@@ -37,10 +39,14 @@ int main(int argc, char *argv[]) {
     qWinMain.setStyleSheet(" background-image: url(:/res/images/table.png); ");
     const QRect availableGeometry = QApplication::desktop()->availableGeometry(&qWinMain);
 
+    qDebug() << "availableGeometry:" <<availableGeometry;
+   // qDebug() << "QGuiApplication::primaryScreen()->availableSize()"
+    //         << QGuiApplication::primaryScreen()->availableSize()* 3 / 5;
+
     qWinMain.setMinimumSize(availableGeometry.width() / 2, (availableGeometry.height() * 2) / 3);
     qWinMain.move((availableGeometry.width() - qWinMain.width()) / 2,
                   (availableGeometry.height() - qWinMain.height()) / 2);
-    // resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
+
     qWinMain.show();
 
     return app.exec();
