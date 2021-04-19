@@ -21,9 +21,9 @@
 #include <QEvent>
 #include <QScrollArea>
 #include <QVector>
-#include <QtConcurrent>
-#include <QProgressDialog>
 
+#include <QProgressDialog>
+#include "puzzleboardview.h"
 
 #ifdef QT_DEBUG
 #include <QDebug>
@@ -45,29 +45,20 @@ public slots:
     void alignmentPuzzle();
     void previewPuzzle();
     void aboutApp();
+    void changePuzzleCountValue(int m_count);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
-    //TODO init list for class member
-    int puzzleOrigWidth = 200;
-    int puzzleOrigHeight = 165;
-
-    int puzzleBorderWidth = 30;
-    int puzzleBorderHeight = 28;
-
-    int puzzleWidth = puzzleOrigWidth-57;       // 143
-    int puzzleHeight = puzzleOrigHeight-57;     // 108
-    int distanceForAutoBonding = 15;
-
+    int currentPuzzleCount;
     //TODO if use threads this options not need - DELETE
     bool showPuzzleBeforStart = false;
 
     QString lastPath;
     QString puzzleFilename;
 
-    QWidget *widgetTable;
+    PuzzleBoardView *widgetTable;
     QWidget *centralWidget;
 
     QPushButton *btnNewPuzzle;
@@ -81,19 +72,12 @@ private:
     QHBoxLayout *centralLayout;
     QVBoxLayout *btnLayout;
 
-    QPixmap puzzlePixmap;
+    //QPixmap puzzlePixmap;
 
     QParallelAnimationGroup puzzleAnimationGroup;
     QVector<QLabel*> listItems;
-
+ QFutureWatcher<void> futureWatcher;
     void setupButtons();
-    /**
-     * @brief createPuzzle
-     * @return currentPuzzleCount
-     */
-    int createPuzzle();
-
-    bool isEven(int number);
 
     /**
      * @brief setupAnimation for puzzleItem
