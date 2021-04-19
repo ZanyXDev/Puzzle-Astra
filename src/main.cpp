@@ -23,8 +23,8 @@ int main(int argc, char *argv[]) {
     QDirIterator it(":/", QDirIterator::Subdirectories);
     while (it.hasNext()) {
         qDebug() << it.next();
-        qDebug() << QString("branch: %1, version: %2, built_at: %3").arg(GIT_BRANCH).arg(GIT_HASH).arg(BUILD_TIMESTAMP);
     }
+    qDebug() << QString("branch: %1, version: %2, built_at: %3").arg(GIT_BRANCH,GIT_HASH,BUILD_TIMESTAMP);
 #endif
 
     QTranslator myappTranslator;
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
     qWinMain.setMinimumSize(availableGeometry.width() / 2, (availableGeometry.height() * 2) / 3);
     qWinMain.move((availableGeometry.width() - qWinMain.width()) / 2,
                   (availableGeometry.height() - qWinMain.height()) / 2);
-// resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
+    // resize(QGuiApplication::primaryScreen()->availableSize() * 3 / 5);
     qWinMain.show();
 
     return app.exec();
