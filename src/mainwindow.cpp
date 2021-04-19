@@ -267,15 +267,18 @@ int MainWindow::createPuzzle()
 
             if (y==countY-1){
                 if (x==0){
-                    typePuzzle=( isEven( y ) ? "2-l-b" : "1-l-b" );
+                    typePuzzle=( isEven( countY ) ? "2-l-b" : "1-l-b" );
                 }else{
-                    if ( (isEven( countX ) && isEven( countY )) ||
-                         (!isEven( countX ) && !isEven( countY )) ){
+                    if ( (isEven( x ) && isEven( countY )) ||
+                         (!isEven( x ) && !isEven( countY )) ){
                         typePuzzle="2-b";
                     }else{
                         typePuzzle="1-b";
                     }
                 }
+             qDebug() <<  QString("%1[y]==%2[countY]-1").arg(y).arg(countY);
+             qDebug() << " isEven( y ):" << isEven( y );
+             qDebug() << " typePuzzle:" << typePuzzle;
             }
 
             if (x==countX-1 && y==countY-1){
