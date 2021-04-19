@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=Astra Puzzle
+Comment=comment
+GenericName=Puzzle
+Type=Application
+Exec=astra-puzzle
+Icon=astra-puzzle
+Categories=Game;LogicGame;
+Keywords=puzzle;logic;game;
+
+
+# Translations
+GenericName[ru]=puzzle
+Comment[ru]=comment.
