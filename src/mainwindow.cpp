@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 
-
-
+#define DIRTY_DEBUG 1
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -10,6 +9,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     this->setWindowTitle(tr("Astra Puzzle v0.2-%1").arg(GIT_HASH));
     this->setWindowIcon(QIcon(":/res/images/puzzle.png"));
 
+#ifdef DIRTY_DEBUG
+    PuzzleBoardView *wdg = new PuzzleBoardView(this);
+    wdg->setPixmap(QPixmap(":res/images/table.png"));
+    setCentralWidget(wdg);
+#else
     centralWidget = new QWidget(this);
     centralLayout = new QHBoxLayout();
     btnLayout     = new QVBoxLayout();
@@ -24,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     centralLayout->addWidget(widgetTable,9);
     centralLayout->addLayout(btnLayout,1);
     setCentralWidget(centralWidget);
-
+#endif
 }
 
 // ------------------- Public slots -----------------------------------------

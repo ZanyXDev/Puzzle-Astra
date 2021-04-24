@@ -3,27 +3,43 @@
 PuzzleBoardView::PuzzleBoardView(QWidget *parent)
     : QGraphicsView(parent)
     , isPuzzleLoad(false)
-    ,  m_scene(0, 0, this->width(), this->height(), this)
 {
-    this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    this->setAlignment(Qt::AlignCenter);
-    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    this->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    this->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    //this->setAlignment(Qt::AlignCenter);
+    //this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_scene.setSceneRect(0,0,this->width(),this->height());
     setScene(&m_scene);
-    fitInView(m_scene.sceneRect(), Qt::KeepAspectRatio);
+    //resizeEvent( nullptr );
+    //TODO change  fitInView to Scale factor
+    // fitInView(m_scene.sceneRect(), Qt::KeepAspectRatio);
 }
 
 void PuzzleBoardView::setPixmap(const QPixmap &pixmap)
 {
+
     if (!pixmap.isNull()){
         puzzlePixmap = pixmap;
-        int cWidth = std::max((puzzlePixmap.width()+(2*puzzleWidth)),
-                              this->width());
-        int cHeight = std::max((puzzlePixmap.height()+(2*puzzleHeight)),
-                               this->height());
-        this->setPuzzleRect(QRectF(0,0,cWidth,cHeight));
         isPuzzleLoad = true;
-        createPuzzle();
+        m_scene.clear();
+        m_scene.setSceneRect(QRectF(0,0,puzzlePixmap.width(),puzzlePixmap.height()));
+
+        qDebug() << Q_FUNC_INFO;
+        qDebug() << "PuzzleBoardView->sceneRect()"<< this->sceneRect();
+        qDebug() << "m_scene.sceneRect() " <<m_scene.sceneRect();
+
+        QRectF rect(0,0,80,40);
+        QBrush myBrush(Qt::darkGray, Qt::Dense5Pattern);
+
+        QGraphicsRectItem *rItem1 = new QGraphicsRectItem(rect);
+
+        rItem1->setFlag(QGraphicsItem::ItemIsMovable);
+        rItem1->setPos(160,40);
+        rItem1->setBrush(myBrush);
+        m_scene.addItem(rItem1);
+        //createPuzzle();
+        // m_scene.update();
+        // fitInView(m_scene.sceneRect(), Qt::KeepAspectRatio);
     }
 
 }
@@ -31,8 +47,8 @@ void PuzzleBoardView::setPixmap(const QPixmap &pixmap)
 void PuzzleBoardView::createPuzzle()
 {
     if (isPuzzleLoad){
-        int countX = puzzlePixmap.width()/puzzleWidth;
-        int countY = puzzlePixmap.height()/puzzleHeight;
+        countPuzzleWidth = puzzlePixmap.width()/puzzleWidth;
+        countPuzzleHeight = puzzlePixmap.height()/puzzleHeight;
 
         /** TODO setup Widget preview
   * picture as  preview->setPicture(pixPreview);
@@ -47,8 +63,8 @@ void PuzzleBoardView::createPuzzle()
         painterPix.end();
 
         QString typePuzzle;
-        for (int x=0;x<countX;x++){
-            for (int y=0;y<countY;y++){
+        for (int x=0;x<countPuzzleWidth;x++){
+            for (int y=0;y<countPuzzleHeight;y++){
                 typePuzzle="1";     // default
                 if ( ( !isEven( x ) &&  isEven( y ) )  ||
                      (  isEven( x ) && !isEven( y ) ) ) {
@@ -67,12 +83,12 @@ void PuzzleBoardView::createPuzzle()
                     typePuzzle=( isEven( x ) ? "1-t" : "2-t" );
                 }
 
-                if (x==countX-1){
+                if (x==countPuzzleWidth-1){
                     if (y==0){
-                        typePuzzle=( isEven( countX ) ? "2-r-t" : "1-r-t" );
+                        typePuzzle=( isEven( countPuzzleWidth ) ? "2-r-t" : "1-r-t" );
                     }else{
-                        if ( (isEven( y ) && isEven( countX ) ) ||
-                             (!isEven( y ) && !isEven( countX )) ){
+                        if ( (isEven( y ) && isEven( countPuzzleWidth ) ) ||
+                             (!isEven( y ) && !isEven( countPuzzleWidth )) ){
                             typePuzzle="2-r";
                         }else{
                             typePuzzle="1-r";
@@ -80,12 +96,12 @@ void PuzzleBoardView::createPuzzle()
                     }
                 }
 
-                if (y==countY-1){
+                if (y==countPuzzleHeight-1){
                     if (x==0){
-                        typePuzzle=( isEven( countY ) ? "2-l-b" : "1-l-b" );
+                        typePuzzle=( isEven( countPuzzleHeight ) ? "2-l-b" : "1-l-b" );
                     }else{
-                        if ( (isEven( x ) && isEven( countY )) ||
-                             (!isEven( x ) && !isEven( countY )) ){
+                        if ( (isEven( x ) && isEven( countPuzzleHeight )) ||
+                             (!isEven( x ) && !isEven( countPuzzleHeight )) ){
                             typePuzzle="2-b";
                         }else{
                             typePuzzle="1-b";
@@ -93,9 +109,9 @@ void PuzzleBoardView::createPuzzle()
                     }
                 }
 
-                if (x==countX-1 && y==countY-1){
-                    if ( (isEven( countX ) && isEven( countY )) ||
-                         (!isEven( countX ) && !isEven( countY )) ){
+                if (x==countPuzzleWidth-1 && y==countPuzzleHeight-1){
+                    if ( (isEven( countPuzzleWidth ) && isEven( countPuzzleHeight )) ||
+                         (!isEven( countPuzzleWidth ) && !isEven( countPuzzleHeight )) ){
                         typePuzzle="1-r-b";
                     }else{
                         typePuzzle="2-r-b";
@@ -105,6 +121,8 @@ void PuzzleBoardView::createPuzzle()
                 // create item puzzle
                 QGraphicsPixmapItem *puzzle = new QGraphicsPixmapItem();
                 puzzle->setFlag(QGraphicsItem::ItemIsMovable);
+                puzzle->setShapeMode(QGraphicsPixmapItem::HeuristicMaskShape);
+                //puzzle->setFlag(QGraphicsItem::ItemIsSelectable);
                 puzzle->setPos(x * puzzleWidth,y * puzzleHeight);
                 puzzle->setData(0,typePuzzle);
                 puzzle->setData(1,"effect1");
@@ -116,12 +134,14 @@ void PuzzleBoardView::createPuzzle()
                 QFuture<QPixmap> future = QtConcurrent::run(this, &PuzzleBoardView::makePicturePuzzle,
                                                             temp, typePuzzle,QString("effect1"));
 
+
                 puzzle->setPixmap( future.result() );
 
                 m_scene.addItem(puzzle);
             }
         }
-        emit puzzleCounts(countX * countY);
+
+        emit puzzleCounts(countPuzzleWidth * countPuzzleHeight);
     }
 }
 
@@ -139,15 +159,22 @@ QPixmap PuzzleBoardView::makePicturePuzzle(const QPixmap &pixmap, QString puzzle
     return pm;
 }
 
-void PuzzleBoardView::setPuzzleRect(QRectF m_rect)
-{
-    m_scene.setSceneRect(m_rect);
-    m_scene.clear();
-}
-
 void PuzzleBoardView::resizeEvent(QResizeEvent *event)
 {
-    fitInView(m_scene.sceneRect(), Qt::KeepAspectRatio);
+    //fitInView(m_scene.sceneRect(), Qt::KeepAspectRatio);
+    static const int GRAPHICS_VIEW_MARGIN = 20;
+    double scale = std::min(
+                ( this->width() - GRAPHICS_VIEW_MARGIN ) / m_scene.width(),
+                ( this->height() - GRAPHICS_VIEW_MARGIN ) / m_scene.height()
+                );
+    //    qDebug() << Q_FUNC_INFO;
+    //    qDebug() << QString("PuzzleBoardView size[%1,%2]").arg(this->width()).arg(this->height());
+    //    qDebug() << "PuzzleBoardView->sceneRect()"<< this->sceneRect();
+    //    qDebug() << "m_scene.sceneRect()"<< m_scene.sceneRect();
+    //    qDebug() << "scale" << scale;
+
+    //this->resetTransform();
+    //this->scale( scale, scale );
     Q_UNUSED(event);
 }
 

@@ -13,7 +13,6 @@ class PuzzleBoardView  :public QGraphicsView
     Q_OBJECT
 public:
     explicit PuzzleBoardView(QWidget *parent = nullptr);
-    void setPuzzleRect(QRectF m_rect);
 
 signals:
     void puzzleCounts(int counts);
@@ -21,6 +20,8 @@ signals:
 public slots:
     void setPixmap(const QPixmap &pixmap);
 
+protected:
+       void resizeEvent(QResizeEvent *event);
 private:
     //TODO init list for class member
     bool isPuzzleLoad;
@@ -33,11 +34,11 @@ private:
     int puzzleHeight = puzzleOrigHeight-57;     // 108
     int distanceForAutoBonding = 15;
 
+    int countPuzzleWidth;
+    int countPuzzleHeight;
     QPixmap puzzlePixmap;
     QGraphicsScene m_scene;
 
-
-    void resizeEvent(QResizeEvent *event);
     bool isEven(int number);
     void createPuzzle();
 
