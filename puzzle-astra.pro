@@ -5,7 +5,8 @@ QT       += core gui concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++17 resources_big
+LANGUAGE  = C++
+CONFIG += c++17 resources_big cmdline precompile_header
 
 include(gitversion.pri)
 
@@ -13,14 +14,21 @@ include(gitversion.pri)
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+# Use Precompiled headers (PCH)
+PRECOMPILED_HEADER  = src/stable.h
+
+
 SOURCES += \
     src/main.cpp \
     src/mainwindow.cpp \
-    src/puzzleboardview.cpp
+    src/puzzleboardview.cpp \
+    src/puzzlepiece.cpp
 
 HEADERS += \
+    src/stable.h \
     src/mainwindow.h \
-    src/puzzleboardview.h
+    src/puzzleboardview.h \
+    src/puzzlepiece.h
 
 RESOURCES += \
     resources.qrc
