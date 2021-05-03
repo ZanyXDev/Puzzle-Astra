@@ -1,4 +1,5 @@
 #include "puzzleboardview.h"
+#include "puzzlepiece.h"
 
 PuzzleBoardView::PuzzleBoardView(QWidget *parent)
     : QGraphicsView(parent)
@@ -17,29 +18,20 @@ PuzzleBoardView::PuzzleBoardView(QWidget *parent)
 
 void PuzzleBoardView::setPixmap(const QPixmap &pixmap)
 {
-
     if (!pixmap.isNull()){
         puzzlePixmap = pixmap;
         isPuzzleLoad = true;
         m_scene.clear();
         m_scene.setSceneRect(QRectF(0,0,puzzlePixmap.width(),puzzlePixmap.height()));
-
+#ifdef QT_DEBUG
         qDebug() << Q_FUNC_INFO;
         qDebug() << "PuzzleBoardView->sceneRect()"<< this->sceneRect();
         qDebug() << "m_scene.sceneRect() " <<m_scene.sceneRect();
 
-        QRectF rect(0,0,80,40);
-        QBrush myBrush(Qt::darkGray, Qt::Dense5Pattern);
-
-        QGraphicsRectItem *rItem1 = new QGraphicsRectItem(rect);
-
-        rItem1->setFlag(QGraphicsItem::ItemIsMovable);
-        rItem1->setPos(160,40);
-        rItem1->setBrush(myBrush);
-        m_scene.addItem(rItem1);
-        //createPuzzle();
-        // m_scene.update();
-        // fitInView(m_scene.sceneRect(), Qt::KeepAspectRatio);
+#endif
+        createPuzzle();
+        m_scene.update();
+        fitInView(m_scene.sceneRect(), Qt::KeepAspectRatio);
     }
 
 }

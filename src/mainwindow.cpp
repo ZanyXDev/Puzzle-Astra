@@ -1,6 +1,5 @@
 #include "mainwindow.h"
-
-#define DIRTY_DEBUG 1
+#include "puzzlepiece.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -9,10 +8,52 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     this->setWindowTitle(tr("Astra Puzzle v0.2-%1").arg(GIT_HASH));
     this->setWindowIcon(QIcon(":/res/images/puzzle.png"));
 
-#ifdef DIRTY_DEBUG
-    PuzzleBoardView *wdg = new PuzzleBoardView(this);
-    wdg->setPixmap(QPixmap(":res/images/table.png"));
-    setCentralWidget(wdg);
+#ifdef QT_DEBUG
+    QGraphicsDropShadowEffect *e = new QGraphicsDropShadowEffect;
+    e->setColor(QColor(40,40,40,245));
+    e->setOffset(0,10);
+    e->setBlurRadius(50);
+
+    QPixmap puzzle_pic1(QLatin1String(":res/images/pieces/piece1-b.png"));
+
+    QGraphicsScene* scene = new QGraphicsScene(this);
+    scene->setSceneRect(0,0,640,480);
+    PuzzlePiece *item1 = new PuzzlePiece();
+
+    item1->setFlags(
+
+                QGraphicsItem::ItemSendsGeometryChanges);
+    item1->setPixmap(puzzle_pic1);
+    //item->setShapeMode(QGraphicsPixmapItem::HeuristicMaskShape);
+    item1->setShapeMode(QGraphicsPixmapItem::MaskShape);
+    scene->addItem(item1);
+
+    QPixmap puzzle_pic2(QLatin1String(":res/images/pieces/piece2-b.png"));
+
+
+    PuzzlePiece *item2 = new PuzzlePiece();
+
+    item2->setFlags(
+                QGraphicsItem::ItemSendsGeometryChanges);
+    item2->setPixmap(puzzle_pic2);
+    item2->setShapeMode(QGraphicsPixmapItem::MaskShape);
+    scene->addItem(item2);
+
+    QPixmap puzzle_pic3(QLatin1String(":res/images/pieces/piece1-l-b.png"));
+
+    PuzzlePiece *item3 = new PuzzlePiece();
+    item3->setGraphicsEffect(e);
+
+    item3->setFlags(
+                QGraphicsItem::ItemSendsGeometryChanges);
+    item3->setPixmap(puzzle_pic3);
+    //item->setShapeMode(QGraphicsPixmapItem::HeuristicMaskShape);
+    item3->setShapeMode(QGraphicsPixmapItem::MaskShape);
+    scene->addItem(item3);
+
+    QGraphicsView *view = new QGraphicsView(scene);
+    setCentralWidget(view);
+
 #else
     centralWidget = new QWidget(this);
     centralLayout = new QHBoxLayout();

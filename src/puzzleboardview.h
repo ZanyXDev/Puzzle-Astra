@@ -1,12 +1,4 @@
 #pragma once
-#include <QGraphicsView>
-#include <QGraphicsEffect>
-#include <QGraphicsScene>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsItem>
-#include <QtConcurrent>
-#include <QBitmap>
-#include <QDebug>
 
 class PuzzleBoardView  :public QGraphicsView
 {

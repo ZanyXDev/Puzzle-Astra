@@ -1,34 +1,6 @@
 #pragma once
 
-#include <QMainWindow>
-#include <QCoreApplication>
-#include <QLabel>
-#include <QPushButton>
-#include <QIcon>
-#include <QSize>
-#include <QFileDialog>
-#include <QPainter>
-#include <QColor>
-#include <QBitmap>
-#include <QRandomGenerator>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QSizePolicy>
-#include <QPropertyAnimation>
-#include <QParallelAnimationGroup>
-#include <QTimer>
-#include <QMouseEvent>
-#include <QEvent>
-#include <QScrollArea>
-#include <QVector>
-
-#include <QProgressDialog>
 #include "puzzleboardview.h"
-
-#ifdef QT_DEBUG
-#include <QDebug>
-#include <QElapsedTimer>
-#endif
 
 class MainWindow : public QMainWindow
 {
