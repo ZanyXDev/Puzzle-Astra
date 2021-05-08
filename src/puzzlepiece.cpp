@@ -9,9 +9,13 @@ PuzzlePiece::PuzzlePiece(QGraphicsItem *parent)
 
 QRectF PuzzlePiece::boundingRect() const
 {
-    QPixmap pm = this->pixmap();
-  //  QRect rect = QRegion(pm.createMaskFromColor(Qt::black,Qt::MaskOutColor)).boundingRect();
-    return QRegion(pm.createMaskFromColor(Qt::black,Qt::MaskOutColor)).boundingRect();
+//    qDebug() << "opaqueArea().boundingRect()"
+//             << this->opaqueArea().boundingRect()
+//             << "QRegion(this->pixmap().createMaskFromColor(Qt::black,Qt::MaskOutColor)).boundingRect()"
+//             << QRegion(this->pixmap().createMaskFromColor(Qt::black,Qt::MaskOutColor)).boundingRect()
+//             << "QRegion(this->pixmap().createMaskFromColor(Qt::transparent)).boundingRect()"
+//             << QRegion(this->pixmap().createMaskFromColor(Qt::transparent)).boundingRect();
+    return QRegion(this->pixmap().createMaskFromColor(Qt::transparent)).boundingRect();
 }
 
 void PuzzlePiece::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
@@ -61,8 +65,11 @@ void PuzzlePiece::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
 
         }
         else {
-
+            //            QGraphicsItemGroup * myGroup = new QGraphicsItemGroup();
             //            QGraphicsItem* closestItem = colItems.at(0);
+            //            myGroup->addToGroup(this);
+            //            myGroup->addToGroup(closestItem);
+
             //            qreal shortestDist = 100000;
             //            foreach(QGraphicsItem* item, colItems){
             //                QLineF line(item->sceneBoundingRect().center(),
@@ -79,3 +86,32 @@ void PuzzlePiece::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
     }
     QGraphicsPixmapItem::mouseReleaseEvent(event);
 }
+
+QVariant PuzzlePiece::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
+{
+    if (change == ItemPositionChange && scene()) {
+        // value is the new position.
+        QPointF newPos = value.toPointF();
+        QRectF m_sceneRect = scene()->sceneRect();
+
+        if (!m_sceneRect.contains(newPos)) {
+
+            qDebug() <<"sceneRect:" <<m_sceneRect << " item->boundingRect():"<< this->boundingRect();
+            qDebug() << "current pos:" << this->pos() << " newPos" << newPos;
+
+            // Keep the item inside the scene rect.
+            newPos.setX(qMin(m_sceneRect.right(), qMax(newPos.x(), m_sceneRect.left())));
+            newPos.setY(qMin(m_sceneRect.bottom(), qMax(newPos.y(), m_sceneRect.top())));
+            qDebug() << "change" << change <<" newPos" << newPos;
+            return newPos;
+        }
+    }
+    return QGraphicsItem::itemChange(change, value);
+}
+
+int PuzzlePiece::type() const
+{
+    // Enable the use of qgraphicsitem_cast with this item.
+    return UserType+1;
+}
+
