@@ -25,13 +25,13 @@ void PuzzleBoardView::setPixmap(const QPixmap &pixmap)
         m_scene.setSceneRect(QRectF(0,0,puzzlePixmap.width(),puzzlePixmap.height()));
 #ifdef QT_DEBUG
         qDebug() << Q_FUNC_INFO;
-        qDebug() << "PuzzleBoardView->sceneRect()"<< this->sceneRect();
-        qDebug() << "m_scene.sceneRect() " <<m_scene.sceneRect();
+        qDebug() << "PuzzleBoardView->sceneRect()"<< this->sceneRect() << " m_scene.sceneRect() " <<m_scene.sceneRect();
 
 #endif
         createPuzzle();
-        m_scene.update();
-        fitInView(m_scene.sceneRect(), Qt::KeepAspectRatio);
+        //m_scene.update();
+        //fitInView(m_scene.sceneRect(), Qt::KeepAspectRatio);
+        resizeEvent( NULL );
     }
 
 }
@@ -54,6 +54,37 @@ void PuzzleBoardView::createPuzzle()
         painterPix.drawImage(puzzleBorderWidth,puzzleBorderHeight,pix_temp,0,0);
         painterPix.end();
 
+#ifdef QT_DEBUG
+        // show scene rect
+
+        QBrush myBrush(Qt::darkGray, Qt::Dense5Pattern);
+        QGraphicsRectItem *rItem1 = new QGraphicsRectItem(m_scene.sceneRect());
+        rItem1->setBrush(myBrush);
+        m_scene.addItem(rItem1);
+
+
+
+        QPixmap temp_1 = pix.copy(puzzleWidth,puzzleHeight,
+                                  puzzleOrigWidth,puzzleOrigHeight);
+        // QPixmap temp_2(QLatin1String(":res/images/pieces/piece2-b.png"));
+
+        temp_1.save("/tmp/temp_1.jpg");
+
+        QFuture<QPixmap> future = QtConcurrent::run(this, &PuzzleBoardView::makePicturePuzzle,
+                                                    temp_1, QString("2-r-t"),QString("effect1"));
+
+        QPixmap temp_2 = future.result();
+        temp_2.save("/tmp/temp_2.jpg");
+
+        PuzzlePiece *item2 = new PuzzlePiece();
+
+        item2->setFlags( QGraphicsItem::ItemSendsGeometryChanges);
+        item2->setPixmap( temp_2 );
+
+        //item2->setShapeMode(QGraphicsPixmapItem::MaskShape);
+        m_scene.addItem(item2);
+
+#else
         QString typePuzzle;
         for (int x=0;x<countPuzzleWidth;x++){
             for (int y=0;y<countPuzzleHeight;y++){
@@ -110,18 +141,35 @@ void PuzzleBoardView::createPuzzle()
                     }
                 }
 
+                QPixmap temp = pix.copy(x*puzzleWidth,y*puzzleHeight,
+                                        puzzleOrigWidth,puzzleOrigHeight);
+
                 // create item puzzle
+#ifdef QT_DEBUG
+                //                QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
+                //                effect->setColor(QColor(40,40,40,245));
+                //                effect->setOffset(0,10);
+                //                effect->setBlurRadius(50);
+
+
+                temp.save(QString("/tmp/%1x%2.jpg").arg(x).arg(y));
+                PuzzlePiece *puzzle = new PuzzlePiece();
+                puzzle->setFlags(QGraphicsItem::ItemSendsGeometryChanges);
+                puzzle->setShapeMode(QGraphicsPixmapItem::MaskShape);
+                // puzzle->setGraphicsEffect(effect);
+#else
+
                 QGraphicsPixmapItem *puzzle = new QGraphicsPixmapItem();
                 puzzle->setFlag(QGraphicsItem::ItemIsMovable);
                 puzzle->setShapeMode(QGraphicsPixmapItem::HeuristicMaskShape);
                 //puzzle->setFlag(QGraphicsItem::ItemIsSelectable);
-                puzzle->setPos(x * puzzleWidth,y * puzzleHeight);
+
+#endif
+
+                puzzle->setPos(x * (puzzleWidth+5),y * (puzzleHeight+5));
                 puzzle->setData(0,typePuzzle);
                 puzzle->setData(1,"effect1");
-
-                QPixmap temp = pix.copy(x*puzzleWidth,y*puzzleHeight,
-                                        puzzleOrigWidth,puzzleOrigHeight);
-                puzzle->setPixmap(temp);
+                //   puzzle->setPixmap(temp);
 
                 QFuture<QPixmap> future = QtConcurrent::run(this, &PuzzleBoardView::makePicturePuzzle,
                                                             temp, typePuzzle,QString("effect1"));
@@ -132,8 +180,8 @@ void PuzzleBoardView::createPuzzle()
                 m_scene.addItem(puzzle);
             }
         }
-
         emit puzzleCounts(countPuzzleWidth * countPuzzleHeight);
+#endif
     }
 }
 
@@ -146,27 +194,21 @@ QPixmap PuzzleBoardView::makePicturePuzzle(const QPixmap &pixmap, QString puzzle
     pm.setMask(puzzle_mask.createMaskFromColor(Qt::black,Qt::MaskOutColor));
 
     QPainter p(&pm);
-    p.drawImage(0,0,puzzle_top.copy(0,0,200,165),0,0);
+    p.drawImage(0,0,puzzle_top.copy(0,0,puzzleOrigWidth,puzzleOrigHeight),0,0);
     p.end();
     return pm;
 }
 
 void PuzzleBoardView::resizeEvent(QResizeEvent *event)
 {
-    //fitInView(m_scene.sceneRect(), Qt::KeepAspectRatio);
     static const int GRAPHICS_VIEW_MARGIN = 20;
-    double scale = std::min(
+    double m_scale = std::min(
                 ( this->width() - GRAPHICS_VIEW_MARGIN ) / m_scene.width(),
                 ( this->height() - GRAPHICS_VIEW_MARGIN ) / m_scene.height()
                 );
-    //    qDebug() << Q_FUNC_INFO;
-    //    qDebug() << QString("PuzzleBoardView size[%1,%2]").arg(this->width()).arg(this->height());
-    //    qDebug() << "PuzzleBoardView->sceneRect()"<< this->sceneRect();
-    //    qDebug() << "m_scene.sceneRect()"<< m_scene.sceneRect();
-    //    qDebug() << "scale" << scale;
 
-    //this->resetTransform();
-    //this->scale( scale, scale );
+    this->resetTransform();
+    this->scale( m_scale, m_scale );
     Q_UNUSED(event);
 }
 

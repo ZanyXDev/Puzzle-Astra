@@ -13,7 +13,7 @@ public slots:
     void setPixmap(const QPixmap &pixmap);
 
 protected:
-       void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event);
 private:
     //TODO init list for class member
     bool isPuzzleLoad;
