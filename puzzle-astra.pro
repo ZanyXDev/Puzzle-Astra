@@ -26,13 +26,19 @@ SOURCES += \
     src/main.cpp \
     src/mainwindow.cpp \
     src/puzzleboardview.cpp \
-    src/puzzlepiece.cpp
+    src/puzzlegraphicsview.cpp \
+    src/puzzlemainwindow.cpp \
+    src/puzzlepiece.cpp \
+    src/welcomedialog.cpp
 
 HEADERS += \
+    src/puzzlegraphicsview.h \
+    src/puzzlemainwindow.h \
     src/stable.h \
     src/mainwindow.h \
     src/puzzleboardview.h \
-    src/puzzlepiece.h
+    src/puzzlepiece.h \
+    src/welcomedialog.h
 
 RESOURCES += \
     resources.qrc
