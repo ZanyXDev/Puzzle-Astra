@@ -1,14 +1,18 @@
 #include "mainwindow.h"
 #include "puzzlepiece.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent),
+      currentPuzzleCount(0)
 {
     //TODO load setting from QSetting
     this->showPuzzleBeforStart = true; //TODO
-    this->setWindowTitle(tr("Astra Puzzle v0.2-%1").arg(GIT_HASH));
+    this->setWindowTitle(tr("Puzzle AstraLinux version %1-%2")
+                         .arg(VERSION)
+                         .arg(GIT_HASH));
     this->setWindowIcon(QIcon(":/res/images/puzzle.png"));
 
-#ifdef QT_DEBUG
+#ifdef QT_DEBUG_1
     QGraphicsDropShadowEffect *e = new QGraphicsDropShadowEffect;
     e->setColor(QColor(40,40,40,245));
     e->setOffset(0,10);

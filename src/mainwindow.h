@@ -48,7 +48,7 @@ private:
 
     QParallelAnimationGroup puzzleAnimationGroup;
     QVector<QLabel*> listItems;
- QFutureWatcher<void> futureWatcher;
+    QFutureWatcher<void> futureWatcher;
     void setupButtons();
 
     /**
