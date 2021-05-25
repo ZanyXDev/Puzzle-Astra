@@ -3,6 +3,11 @@
 #include "puzzlepiece.h"
 
 int main(int argc, char *argv[]) {
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QCoreApplication::setOrganizationName("ZanyXDev Inc.");
+    QCoreApplication::setApplicationName("Puzzle AstraLinux version");
+    QCoreApplication::setApplicationVersion(QString("%1-%2").arg(VERSION).arg(GIT_HASH));
+
     QApplication app(argc, argv);
 
     // create folder AppConfigLocation

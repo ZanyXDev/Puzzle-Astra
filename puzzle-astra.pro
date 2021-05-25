@@ -3,6 +3,10 @@
 TEMPLATE +=app
 QT       += core gui concurrent
 
+VERSION = 0.3
+# allows use of version variable elsewhere
+DEFINES += "VERSION=$$VERSION"
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 LANGUAGE  = C++
