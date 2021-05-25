@@ -19,16 +19,21 @@ QRectF PuzzlePiece::boundingRect() const
 }
 
 void PuzzlePiece::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
-    qDebug() << "Custom item move event.";
     m_dragged = true;
     this->setPos(mapToScene(event->pos() + m_shiftMouseCoords));
+    qDebug() << Q_FUNC_INFO << "this->pos()" << this->pos()
+             << " mapToScene(event->pos() + m_shiftMouseCoords):"
+              << mapToScene(event->pos() + m_shiftMouseCoords);
+
     QGraphicsPixmapItem::mouseMoveEvent(event);
 }
 
 void PuzzlePiece::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    qDebug() << "Custom item mousePressEvent";
     m_shiftMouseCoords = this->pos() - mapToScene(event->pos());
+    qDebug() << Q_FUNC_INFO << "this->pos()" << this->pos()
+             << " mapToScene(event->pos()):" << mapToScene(event->pos());
+
     this->setCursor(QCursor(Qt::ClosedHandCursor));
 
     if(event->button() == Qt::LeftButton) {
@@ -100,8 +105,8 @@ QVariant PuzzlePiece::itemChange(QGraphicsItem::GraphicsItemChange change, const
             qDebug() << "current pos:" << this->pos() << " newPos" << newPos;
 
             // Keep the item inside the scene rect.
-            newPos.setX(qMin(m_sceneRect.right(), qMax(newPos.x(), m_sceneRect.left())));
-            newPos.setY(qMin(m_sceneRect.bottom(), qMax(newPos.y(), m_sceneRect.top())));
+            newPos.setX(qMin(m_sceneRect.right(), qMax(newPos.x(), m_sceneRect.left() - this->boundingRect().width()  )));
+            newPos.setY(qMin(m_sceneRect.bottom(), qMax(newPos.y(), m_sceneRect.top() - this->boundingRect().height() )));
             qDebug() << "change" << change <<" newPos" << newPos;
             return newPos;
         }

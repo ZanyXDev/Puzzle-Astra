@@ -207,8 +207,8 @@ void PuzzleBoardView::resizeEvent(QResizeEvent *event)
                 ( this->height() - GRAPHICS_VIEW_MARGIN ) / m_scene.height()
                 );
 
-    this->resetTransform();
-    this->scale( m_scale, m_scale );
+    //this->resetTransform();
+    //this->scale( m_scale, m_scale );
     Q_UNUSED(event);
 }
 
