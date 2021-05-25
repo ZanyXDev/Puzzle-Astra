@@ -1,7 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>res/images/buttons/exit.png</file>
-        <file>i18n/puzzle-astra_ru_RU.qm</file>
+	<file>i18n/puzzle-astra_ru_RU.qm</file>
+	<file>res/fonts/KellySlab-Regular.ttf</file>
+	<file>res/fonts/OFL.txt</file>
+	<file>res/images/buttons/exit.png</file>        
         <file>res/images/table.png</file>
         <file>res/images/puzzle.png</file>
         <file>res/images/background.png</file>
