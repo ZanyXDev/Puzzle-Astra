@@ -27,17 +27,80 @@ WelcomeDialog::WelcomeDialog(QWidget *parent)
     //set info font & text
     QFont font3 = QFont("Kelly Slab", 12 + modifier);
 
-     const QString subtitleText = tr("Thank you for downloading Puzzle AstraLinux version.<br>Here's a few tips to get you started:");
-     const QString updateText = tr("<ul><li>Right click to access the main menu</li><li>Ctrl+ leeft click rotate item</li><li>Scroll to zoom in and out</li><li>Use ESC keys to switch fullscreen</li></ul>");
+    const QString subtitleText = tr("Thank you for downloading Puzzle AstraLinux version.<br>Here's a few tips to get you started:");
+    const QString infoText = tr("<ul><li>Right click to access the main menu</li><li>Ctrl+ leeft click rotate item</li><li>Scroll to zoom in and out</li><li>Use ESC keys to switch fullscreen</li></ul>");
 
-     setWindowTitle(tr("Puzzle AstraLinux version"));
-     resize(300,300);
-     setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
-     setStyleSheet(" background-color: #212121; ");
+    setWindowTitle(tr("Puzzle AstraLinux version %1").arg(VERSION));
 
-     auto *vLayout = new QVBoxLayout(this);
-     auto *logoLabel =new QLabel(tr("Welcome"));
-     logoLabel->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
-     logoLabel->setFont(font1);
-     setLayout(vLayout);
+    setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+    setStyleSheet(" background-color: #212121; ");
+
+    auto *vLayout = new QVBoxLayout(this);
+    auto *hLayout = new QHBoxLayout();
+    auto *logoLabel =new QLabel(tr("Welcome"));
+    logoLabel->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+    logoLabel->setFont(font1);
+    logoLabel->setStyleSheet("QLabel { color : white; }");
+    logoLabel->setAlignment(Qt::AlignCenter | Qt::AlignTop);
+
+    hLayout->addStretch();
+    hLayout->addWidget(logoLabel,Qt::AlignCenter);
+    hLayout->addStretch();
+
+    auto *subtitleLabel = new QLabel( subtitleText );
+    subtitleLabel->setFont(font2);
+    subtitleLabel->setStyleSheet("QLabel { color : white; }");
+
+    auto *infoLabel = new QLabel( infoText );
+    infoLabel->setStyleSheet("QLabel { color : white; }");
+    infoLabel->setFont(font3);
+
+    QSettings settings;
+
+    auto *updateCheckBox = new QCheckBox(tr("Enable notifications on startup"));
+    updateCheckBox->setChecked(settings.value("updatenotifications", false).toBool());
+
+    updateCheckBox->setStyleSheet(
+    " QCheckBox {color: white; font-family: Kelly Slab; spacing: 5px;}"
+    " QCheckBox::indicator { width: 12px; height: 12px; border: 2px solid #FFFFFF;border-radius: 4px; background: none; }"
+    " QCheckBox::indicator:unchecked:hover { background: rgba(255, 255, 255, 90); } "
+    " QCheckBox::indicator:unchecked:pressed { background: rgba(255, 255, 255, 127); } "
+    " QCheckBox::indicator:checked { image: url(:/res/images/checkmark.png); } "
+    " QCheckBox::indicator:checked:hover { background: rgba(255, 255, 255, 90); } "
+    " QCheckBox::indicator:checked:pressed { background: rgba(255, 255, 255, 127); }" );
+
+    vLayout->addLayout(hLayout);
+    vLayout->addStretch();
+    vLayout->addWidget(subtitleLabel,Qt::AlignCenter);
+    vLayout->addStretch(2);
+    vLayout->addWidget(infoLabel,Qt::AlignCenter);
+    vLayout->addStretch();
+    vLayout->addWidget(updateCheckBox);
+    setLayout(vLayout);
+    setFixedSize(sizeHint());
+
+    connect(updateCheckBox, &QCheckBox::stateChanged, qApp, [](int state){
+        QSettings settings;
+        settings.beginGroup("options");
+        settings.setValue("updatenotifications", state > 0);
+        settings.endGroup();
+        settings.sync();
+
+    });
+    setCenterOnScreen();
+}
+
+void WelcomeDialog::setCenterOnScreen()
+{
+    // Get current screen size
+    QRect rec = QGuiApplication::screenAt(this->pos())->geometry();
+
+    // Using minimum size of window
+    QSize size = this->minimumSize();
+
+    // Set top left point
+    QPoint topLeft = QPoint((rec.width() / 2) - (size.width() / 2), (rec.height() / 2) - (size.height() / 2));
+
+    // set window position
+    setGeometry(QRect(topLeft, size));
 }

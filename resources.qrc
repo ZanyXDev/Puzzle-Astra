@@ -1,9 +1,9 @@
 <RCC>
     <qresource prefix="/">
-	<file>i18n/puzzle-astra_ru_RU.qm</file>
-	<file>res/fonts/KellySlab-Regular.ttf</file>
-	<file>res/fonts/OFL.txt</file>
-	<file>res/images/buttons/exit.png</file>        
+        <file>i18n/puzzle-astra_ru_RU.qm</file>
+        <file>res/fonts/KellySlab-Regular.ttf</file>
+        <file>res/fonts/OFL.txt</file>
+        <file>res/images/buttons/exit.png</file>
         <file>res/images/table.png</file>
         <file>res/images/puzzle.png</file>
         <file>res/images/background.png</file>
@@ -64,5 +64,6 @@
         <file>res/images/pieces/piece1-r_effect2.png</file>
         <file>res/images/pieces/piece1-r.png</file>
         <file>res/images/pieces/piece2-b_effect2.png</file>
+        <file>res/images/checkmark.png</file>
     </qresource>
 </RCC>
