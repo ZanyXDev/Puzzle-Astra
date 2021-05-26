@@ -49,15 +49,17 @@ PuzzleMainWindow::PuzzleMainWindow(QWidget *parent) :
         settings.sync();
     }else{
         //restore settings
+        //TODO check geometry to empty
         //restoreGeometry(settings.value("geometry").toByteArray());
+        lastPath = settings.value("options/lastPath",QString("")).toString();
     }
 
-    qDebug() << "showNotification:" <<settings.value("options/hideNotification").toBool();
     if (  !settings.value("options/hideNotification").toBool() ){
         // Show welcome dialog
         openWelcomeDialog(this);
     }
 }
+
 
 void PuzzleMainWindow::setJustLaunchedWithImage(bool value)
 {
@@ -99,6 +101,17 @@ void PuzzleMainWindow::ShowContextMenu(const QPoint &pos)
     contextMenu.addSeparator();
     contextMenu.addAction(actToggleFullScreen);
     contextMenu.exec(mapToGlobal(pos));
+}
+
+void PuzzleMainWindow::closeEvent(QCloseEvent *event)
+{
+    QSettings settings;
+    settings.beginGroup("options");
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("lastPath",lastPath);
+    settings.endGroup();
+    settings.sync();
+    QMainWindow::closeEvent(event);
 }
 
 void PuzzleMainWindow::setupContextMenu()

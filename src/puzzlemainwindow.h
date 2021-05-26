@@ -11,9 +11,11 @@ class PuzzleMainWindow : public QMainWindow
     Q_OBJECT
 public:
     explicit PuzzleMainWindow(QWidget *parent = nullptr);
+
     void setJustLaunchedWithImage(bool value);
     void toggleFullScreen();
     void openWelcomeDialog(QWidget *parent);
+
 signals:
 
 public slots:
@@ -22,8 +24,8 @@ private slots:
     void ShowContextMenu(const QPoint &pos);
 
 protected:
-   // void contextMenuEvent(QContextMenuEvent *event) override;
-
+    // void contextMenuEvent(QContextMenuEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
 private:
     bool justLaunchedWithImage;
     Qt::WindowStates storedWindowState;
