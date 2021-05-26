@@ -68,12 +68,16 @@ WelcomeDialog::WelcomeDialog(QWidget *parent)
     " QCheckBox::indicator:checked:hover { background: rgba(255, 255, 255, 90); } "
     " QCheckBox::indicator:checked:pressed { background: rgba(255, 255, 255, 127); }" );
 
+    QFrame* hLineFrame = new QFrame();
+    hLineFrame->setFrameShape(QFrame::HLine);
+
     vLayout->addLayout(hLayout);
     vLayout->addStretch();
     vLayout->addWidget(subtitleLabel,Qt::AlignCenter);
     vLayout->addStretch(2);
     vLayout->addWidget(infoLabel,Qt::AlignCenter);
     vLayout->addStretch();
+    vLayout->addWidget(hLineFrame);
     vLayout->addWidget(updateCheckBox);
     setLayout(vLayout);
     setFixedSize(sizeHint());
