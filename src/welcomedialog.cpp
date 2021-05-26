@@ -3,7 +3,6 @@
 WelcomeDialog::WelcomeDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint | Qt::CustomizeWindowHint));
     // Application modal on mac, window modal everywhere else
 #ifdef Q_OS_MACOS
