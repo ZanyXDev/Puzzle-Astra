@@ -8,8 +8,8 @@
 int main(int argc, char *argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setOrganizationName("ZanyXDev Inc.");
-    QCoreApplication::setApplicationName("Puzzle AstraLinux version");
-    QCoreApplication::setApplicationVersion(QString("%1-%2").arg(VERSION).arg(GIT_HASH));
+    QCoreApplication::setApplicationName("puzzle-astra");
+    QCoreApplication::setApplicationVersion(QString("%1").arg(VERSION));
 
     QApplication app(argc, argv);
 
@@ -50,5 +50,6 @@ int main(int argc, char *argv[]) {
     qWinMain.move((availableGeometry.width() - qWinMain.width()) / 2,
                   (availableGeometry.height() - qWinMain.height()) / 2);
     qWinMain.show();
+    qDebug() << "after show";
     return app.exec();
 }
