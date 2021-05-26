@@ -19,7 +19,8 @@ public:
 signals:
 
 public slots:
-    void openFile(const QString &fileName);
+    void openFile();
+
 private slots:
     void ShowContextMenu(const QPoint &pos);
 
@@ -42,6 +43,8 @@ private:
     PuzzleGraphicsView *graphicsView;
     QMenu *contextMenu;
     QShortcut *escShortcut;
+    QString lastPath;
+    QString puzzleFilename;
 
     void setupContextMenu();
     void setupActions();

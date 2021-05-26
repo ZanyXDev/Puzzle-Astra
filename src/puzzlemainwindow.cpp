@@ -88,9 +88,20 @@ void PuzzleMainWindow::openWelcomeDialog(QWidget *parent)
     welcomeDialog->show();
 }
 
-void PuzzleMainWindow::openFile(const QString &fileName)
+void PuzzleMainWindow::openFile()
 {
+    QString filename = QFileDialog::getOpenFileName(
+                this,
+                tr("Open pictures"),
+                lastPath,
+                tr("Pictures (*.png *.xpm *.jpg *.jpeg *.tiff *.webp *.bmp)"));
 
+    if (filename.isEmpty()){
+        return;
+    }
+
+    puzzleFilename = QFileInfo(filename).fileName();
+    lastPath = QFileInfo(filename).dir().canonicalPath();
 }
 
 void PuzzleMainWindow::ShowContextMenu(const QPoint &pos)
@@ -121,12 +132,10 @@ void PuzzleMainWindow::setupContextMenu()
 
 void PuzzleMainWindow::setupActions()
 {
-
-
     actNewPuzzle = new QAction(tr("&Open image ..."), this);
     actNewPuzzle->setShortcut(QKeySequence::Open);
     actNewPuzzle->setStatusTip(tr("Open image and create puzzle"));
-    // connect(actNewPuzzle, &QAction::triggered, this, &PuzzleMainWindow::newFile);
+    connect(actNewPuzzle, &QAction::triggered, this, &PuzzleMainWindow::openFile);
 
     actSavePuzzle = new QAction(tr("&Save puzzle ..."), this);
     actSavePuzzle->setShortcut(QKeySequence::Save);
