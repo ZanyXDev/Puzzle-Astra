@@ -4,7 +4,7 @@
 PuzzleMainWindow::PuzzleMainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    setAttribute(Qt::WA_DeleteOnClose);
+
     // Initialize variables
     justLaunchedWithImage = false;
     storedWindowState = Qt::WindowNoState;
