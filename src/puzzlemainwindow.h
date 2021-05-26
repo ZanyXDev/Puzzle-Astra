@@ -18,16 +18,30 @@ signals:
 
 public slots:
     void openFile(const QString &fileName);
+private slots:
+    void ShowContextMenu(const QPoint &pos);
 
 protected:
    // void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
-    PuzzleGraphicsView *graphicsView;
-    QMenu *contextMenu;
     bool justLaunchedWithImage;
     Qt::WindowStates storedWindowState;
+
+    QAction *actNewPuzzle;
+    QAction *actSavePuzzle;
+    QAction *actLoadPuzzle;
+    QAction *actAlignment;
+    QAction *actPreview;
+    QAction *actAbout;
+    QAction *actToggleFullScreen;
+    QAction *actExit;
+
+    PuzzleGraphicsView *graphicsView;
+    QMenu *contextMenu;
     QShortcut *escShortcut;
 
+    void setupContextMenu();
+    void setupActions();
 };
 

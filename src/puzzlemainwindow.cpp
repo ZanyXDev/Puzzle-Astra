@@ -30,22 +30,33 @@ PuzzleMainWindow::PuzzleMainWindow(QWidget *parent) :
             toggleFullScreen();
     });
 
+    setupActions();
+    setContextMenuPolicy(Qt::CustomContextMenu);
     // Context menu
-    contextMenu = new QMenu(this);
-
+    //setupContextMenu();
+    connect(this, &PuzzleMainWindow::customContextMenuRequested,
+            this, &PuzzleMainWindow::ShowContextMenu);
     // Load window geometry
     QSettings settings;
     // Check first launch
-    auto firstLaunch = settings.value("firstlaunch", false).toBool();
-    if ( firstLaunch ){
+    if ( ! settings.value("firstlaunch", false).toBool() ){
         settings.setValue("firstlaunch", true);
-        settings.setValue("configversion", QString("%1-%2").arg(VERSION).arg(GIT_HASH));
-        // Show welcome dialog on first launch
-        openWelcomeDialog(this);
+        settings.setValue("configversion", QString("%1").arg(VERSION));
+
+        settings.beginGroup("options");
+        settings.setValue("hideNotification", false);
+        settings.endGroup();
+        settings.sync();
     }else{
-        restoreGeometry(settings.value("geometry").toByteArray());
+        //restore settings
+        //restoreGeometry(settings.value("geometry").toByteArray());
     }
 
+    qDebug() << "showNotification:" <<settings.value("options/hideNotification").toBool();
+    if (  !settings.value("options/hideNotification").toBool() ){
+        // Show welcome dialog
+        openWelcomeDialog(this);
+    }
 }
 
 void PuzzleMainWindow::setJustLaunchedWithImage(bool value)
@@ -78,4 +89,43 @@ void PuzzleMainWindow::openWelcomeDialog(QWidget *parent)
 void PuzzleMainWindow::openFile(const QString &fileName)
 {
 
+}
+
+void PuzzleMainWindow::ShowContextMenu(const QPoint &pos)
+{
+    QMenu contextMenu(tr("Context menu"), this);
+    contextMenu.addAction(actNewPuzzle);
+    contextMenu.addAction(actSavePuzzle);
+    contextMenu.addSeparator();
+    contextMenu.addAction(actToggleFullScreen);
+    contextMenu.exec(mapToGlobal(pos));
+}
+
+void PuzzleMainWindow::setupContextMenu()
+{
+    contextMenu = new QMenu(this);
+}
+
+void PuzzleMainWindow::setupActions()
+{
+
+
+    actNewPuzzle = new QAction(tr("&Open image ..."), this);
+    actNewPuzzle->setShortcut(QKeySequence::Open);
+    actNewPuzzle->setStatusTip(tr("Open image and create puzzle"));
+    // connect(actNewPuzzle, &QAction::triggered, this, &PuzzleMainWindow::newFile);
+
+    actSavePuzzle = new QAction(tr("&Save puzzle ..."), this);
+    actSavePuzzle->setShortcut(QKeySequence::Save);
+    actSavePuzzle->setStatusTip(tr("Save puzzle to file"));
+    // connect(actNewPuzzle, &QAction::triggered, this, &PuzzleMainWindow::newFile);
+
+    //    actAlignment;
+    //    actPreview;
+    //    actAbout;
+    actToggleFullScreen = new QAction(tr("&Toggel fullscreen"), this);
+    actToggleFullScreen->setShortcut(Qt::Key_F11);
+    actToggleFullScreen->setStatusTip(tr("Toggle fullscreen mode"));
+    connect(actToggleFullScreen, &QAction::triggered, this, &PuzzleMainWindow::toggleFullScreen);
+    //    actExit;
 }

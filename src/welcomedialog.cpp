@@ -56,8 +56,8 @@ WelcomeDialog::WelcomeDialog(QWidget *parent)
 
     QSettings settings;
 
-    auto *updateCheckBox = new QCheckBox(tr("Enable notifications on startup"));
-    updateCheckBox->setChecked(settings.value("updatenotifications", false).toBool());
+    auto *updateCheckBox = new QCheckBox(tr("Disable notifications on next startup?"));
+    updateCheckBox->setChecked(settings.value("options/hideNotification", false).toBool());
 
     updateCheckBox->setStyleSheet(
     " QCheckBox {color: white; font-family: Kelly Slab; spacing: 5px;}"
@@ -80,9 +80,7 @@ WelcomeDialog::WelcomeDialog(QWidget *parent)
 
     connect(updateCheckBox, &QCheckBox::stateChanged, qApp, [](int state){
         QSettings settings;
-        settings.beginGroup("options");
-        settings.setValue("updatenotifications", state > 0);
-        settings.endGroup();
+        settings.setValue("options/hideNotification", state > 0);
         settings.sync();
 
     });
